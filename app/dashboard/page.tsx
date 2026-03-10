@@ -27,189 +27,13 @@ interface Game {
   mentalState?: MentalState;
 }
 
-// Mock data for demonstration
-const MOCK_GAMES: Game[] = [
-  {
-    id: '1',
-    date: '2024-01-15',
-    opponent: 'Red Wings',
-    homeAway: 'home',
-    result: 'win',
-    goals: 2,
-    assists: 1,
-    shots: 5,
-    plusMinus: 2,
-    iceTime: 18.5,
-    mentalState: {
-      confidence: 9,
-      sleepHours: 8.5,
-      sleepQuality: 9,
-      stressLevel: 3,
-      physicalEnergy: 8,
-      notes: 'Felt great, well rested'
-    }
-  },
-  {
-    id: '2',
-    date: '2024-01-12',
-    opponent: 'Bruins',
-    homeAway: 'away',
-    result: 'loss',
-    goals: 0,
-    assists: 1,
-    shots: 3,
-    plusMinus: -1,
-    iceTime: 16.2,
-    mentalState: {
-      confidence: 5,
-      sleepHours: 6,
-      sleepQuality: 5,
-      stressLevel: 7,
-      physicalEnergy: 5,
-      notes: 'Tired from travel'
-    }
-  },
-  {
-    id: '3',
-    date: '2024-01-10',
-    opponent: 'Maple Leafs',
-    homeAway: 'home',
-    result: 'win',
-    goals: 1,
-    assists: 2,
-    shots: 6,
-    plusMinus: 3,
-    iceTime: 19.8,
-    mentalState: {
-      confidence: 8,
-      sleepHours: 8,
-      sleepQuality: 8,
-      stressLevel: 4,
-      physicalEnergy: 9,
-      notes: 'Good energy, team played well'
-    }
-  },
-  {
-    id: '4',
-    date: '2024-01-08',
-    opponent: 'Canadiens',
-    homeAway: 'away',
-    result: 'win',
-    goals: 3,
-    assists: 0,
-    shots: 7,
-    plusMinus: 2,
-    iceTime: 20.5,
-    mentalState: {
-      confidence: 9,
-      sleepHours: 7.5,
-      sleepQuality: 8,
-      stressLevel: 3,
-      physicalEnergy: 8,
-      notes: 'Hat trick game!'
-    }
-  },
-  {
-    id: '5',
-    date: '2024-01-05',
-    opponent: 'Rangers',
-    homeAway: 'home',
-    result: 'loss',
-    goals: 0,
-    assists: 0,
-    shots: 2,
-    plusMinus: -2,
-    iceTime: 14.3,
-    mentalState: {
-      confidence: 4,
-      sleepHours: 6.5,
-      sleepQuality: 6,
-      stressLevel: 8,
-      physicalEnergy: 4,
-      notes: 'Felt off all game'
-    }
-  },
-  {
-    id: '6',
-    date: '2024-01-03',
-    opponent: 'Penguins',
-    homeAway: 'away',
-    result: 'win',
-    goals: 1,
-    assists: 1,
-    shots: 4,
-    plusMinus: 1,
-    iceTime: 17.9,
-    mentalState: {
-      confidence: 7,
-      sleepHours: 7,
-      sleepQuality: 7,
-      stressLevel: 5,
-      physicalEnergy: 7,
-      notes: 'Solid performance'
-    }
-  },
-  {
-    id: '7',
-    date: '2024-01-01',
-    opponent: 'Flyers',
-    homeAway: 'home',
-    result: 'win',
-    goals: 2,
-    assists: 2,
-    shots: 8,
-    plusMinus: 3,
-    iceTime: 21.2,
-    mentalState: {
-      confidence: 9,
-      sleepHours: 9,
-      sleepQuality: 9,
-      stressLevel: 2,
-      physicalEnergy: 9,
-      notes: 'New year, great start!'
-    }
-  },
-  {
-    id: '8',
-    date: '2023-12-28',
-    opponent: 'Devils',
-    homeAway: 'away',
-    result: 'loss',
-    goals: 1,
-    assists: 0,
-    shots: 5,
-    plusMinus: 0,
-    iceTime: 18.1,
-    mentalState: {
-      confidence: 6,
-      sleepHours: 6.5,
-      sleepQuality: 6,
-      stressLevel: 6,
-      physicalEnergy: 6,
-      notes: 'Average game'
-    }
-  }
-];
-
 export default function DashboardPage() {
   const router = useRouter();
   const [games, setGames] = useState<Game[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
-  const [useMockData, setUseMockData] = useState(true); // Toggle for demo mode
-
   const fetchGames = useCallback(async () => {
     try {
-      // Use mock data for demonstration
-      if (useMockData) {
-        // Simulate API delay
-        await new Promise(resolve => setTimeout(resolve, 500));
-        setGames(MOCK_GAMES);
-        setIsLoading(false);
-        return;
-      }
-
-      // Real API call
       const response = await fetch('/api/games');
 
       if (!response.ok) {
@@ -228,7 +52,7 @@ export default function DashboardPage() {
     } finally {
       setIsLoading(false);
     }
-  }, [useMockData, router]);
+  }, [router]);
 
   useEffect(() => {
     fetchGames();
@@ -307,16 +131,6 @@ export default function DashboardPage() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
           <div className="flex justify-between items-center">
             <h1 className="text-2xl font-bold text-gray-900">Performance Dashboard</h1>
-            <button
-              onClick={() => {
-                setUseMockData(!useMockData);
-                setIsLoading(true);
-                setGames([]);
-              }}
-              className="px-3 py-1.5 text-sm bg-gray-100 hover:bg-gray-200 text-gray-700 rounded-md transition-colors"
-            >
-              {useMockData ? 'Using Mock Data' : 'Using Real Data'}
-            </button>
           </div>
         </div>
       </header>
