@@ -6,27 +6,19 @@ import { requireAuth } from "@/src/lib/auth"
 export async function GET() {
   try {
     const user = await requireAuth()
+    const games = await prisma.game.findMany({
+      where: {
+        userId: user.id
+      },
+      include: {
+        mentalState: true
+      },
+      orderBy: {
+        date: 'desc'
+      }
+    })
 
-    // TEMPORARY: Return empty array when database is not available
-    // TODO: Remove this bypass once database is set up
-    try {
-      const games = await prisma.game.findMany({
-        where: {
-          userId: user.id
-        },
-        include: {
-          mentalState: true
-        },
-        orderBy: {
-          date: 'desc'
-        }
-      })
-
-      return NextResponse.json({ games })
-    } catch {
-      console.warn("Database not available, returning empty games array")
-      return NextResponse.json({ games: [] })
-    }
+    return NextResponse.json({ games })
   } catch (error) {
     if (error instanceof Error && error.message === 'Unauthorized') {
       return NextResponse.json(
@@ -130,60 +122,32 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // TEMPORARY: Return success without database when not available
-    // TODO: Remove this bypass once database is set up
-    try {
-      // Create game
-      const game = await prisma.game.create({
-        data: {
-          userId: user.id,
-          date: gameDate,
-          opponent,
-          homeAway,
-          result,
-          goals: goals ?? 0,
-          assists: assists ?? 0,
-          shots: shots ?? 0,
-          plusMinus: plusMinus ?? 0,
-          iceTime: iceTime ?? 0
-        },
-        include: {
-          mentalState: true
-        }
-      })
+    // Create game
+    const game = await prisma.game.create({
+      data: {
+        userId: user.id,
+        date: gameDate,
+        opponent,
+        homeAway,
+        result,
+        goals: goals ?? 0,
+        assists: assists ?? 0,
+        shots: shots ?? 0,
+        plusMinus: plusMinus ?? 0,
+        iceTime: iceTime ?? 0
+      },
+      include: {
+        mentalState: true
+      }
+    })
 
-      return NextResponse.json(
-        {
-          message: "Game created successfully",
-          game
-        },
-        { status: 201 }
-      )
-    } catch {
-      console.warn("Database not available, returning mock success")
-      return NextResponse.json(
-        {
-          message: "Game created successfully (database unavailable - data not persisted)",
-          game: {
-            id: 'temp-' + Date.now(),
-            userId: user.id,
-            date: gameDate,
-            opponent,
-            homeAway,
-            result,
-            goals: goals ?? 0,
-            assists: assists ?? 0,
-            shots: shots ?? 0,
-            plusMinus: plusMinus ?? 0,
-            iceTime: iceTime ?? 0,
-            createdAt: new Date(),
-            updatedAt: new Date(),
-            mentalState: null
-          }
-        },
-        { status: 201 }
-      )
-    }
+    return NextResponse.json(
+      {
+        message: "Game created successfully",
+        game
+      },
+      { status: 201 }
+    )
   } catch (error) {
     if (error instanceof Error && error.message === 'Unauthorized') {
       return NextResponse.json(
