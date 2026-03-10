@@ -1,12 +1,18 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import { useState, useEffect, FormEvent } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft } from 'lucide-react';
 
-export default function MentalStatePage({ params }: { params: { id: string } }) {
+export default function MentalStatePage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
+  const [gameId, setGameId] = useState<string>('');
+
+  useEffect(() => {
+    params.then(p => setGameId(p.id));
+  }, [params]);
+
   const [isLoading, setIsLoading] = useState(false);
   const [showSuccess, setShowSuccess] = useState(false);
   const [formData, setFormData] = useState({
@@ -20,10 +26,11 @@ export default function MentalStatePage({ params }: { params: { id: string } }) 
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
+    if (!gameId) return;
     setIsLoading(true);
 
     try {
-      const response = await fetch(`/api/games/${params.id}/mental`, {
+      const response = await fetch(`/api/games/${gameId}/mental`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -43,7 +50,7 @@ export default function MentalStatePage({ params }: { params: { id: string } }) 
 
       // Redirect after 1 second
       setTimeout(() => {
-        router.push(`/games/${params.id}`);
+        router.push(`/games/${gameId}`);
       }, 1000);
     } catch (error) {
       console.error('Error saving mental state:', error);
@@ -69,7 +76,7 @@ export default function MentalStatePage({ params }: { params: { id: string } }) 
       <div className="max-w-2xl mx-auto">
         {/* Back Button */}
         <Link
-          href={`/games/${params.id}`}
+          href={`/games/${gameId}`}
           className="inline-flex items-center gap-2 text-gray-600 hover:text-gray-900 mb-6 transition-colors"
         >
           <ArrowLeft className="w-4 h-4" />
@@ -280,7 +287,7 @@ export default function MentalStatePage({ params }: { params: { id: string } }) 
             {/* Action Buttons */}
             <div className="flex flex-col-reverse sm:flex-row gap-3 pt-4">
               <Link
-                href={`/games/${params.id}`}
+                href={`/games/${gameId}`}
                 className="sm:flex-1 text-center px-6 py-4 border-2 border-gray-300 text-gray-700 rounded-lg font-semibold hover:bg-gray-50 transition-colors text-lg"
               >
                 Skip
