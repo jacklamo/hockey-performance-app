@@ -22,8 +22,8 @@
 - [x] **GAME-01**: User can manually add a game with stats (date, opponent, home/away, result, goals, assists, shots, +/-, ice time)
 - [ ] **GAME-02**: User can edit an existing game's stats
 - [ ] **GAME-03**: User can delete a game (with confirmation)
-- [ ] **GAME-04**: User can view all games in a list sorted by date (newest first)
-- [ ] **GAME-05**: User can view a game's full detail (stats + mental state)
+- [x] **GAME-04**: User can view all games in a list sorted by date (newest first)
+- [x] **GAME-05**: User can view a game's full detail (stats + mental state)
 
 ### Mental State Tracking
 
@@ -88,8 +88,8 @@
 | AUTH-02 | Phase 1 | Complete |
 | AUTH-03 | Phase 1 | Complete |
 | GAME-01 | Phase 1 | Complete |
-| GAME-04 | Phase 1 | Pending |
-| GAME-05 | Phase 1 | Pending |
+| GAME-04 | Phase 1 | Complete |
+| GAME-05 | Phase 1 | Complete |
 | GAME-02 | Phase 2 | Pending |
 | GAME-03 | Phase 2 | Pending |
 | MENTAL-01 | Phase 2 | Pending |

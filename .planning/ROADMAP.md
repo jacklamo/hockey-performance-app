@@ -12,7 +12,7 @@ The app is ~80% feature-complete but running entirely on mock data. This roadmap
 
 Decimal phases appear between their surrounding integers in numeric order.
 
-- [ ] **Phase 1: Database Foundation** - Connect Railway Postgres, remove all mock data bypasses, verify existing features work end-to-end with real data
+- [x] **Phase 1: Database Foundation** - Connect Railway Postgres, remove all mock data bypasses, verify existing features work end-to-end with real data (completed 2026-03-10)
 - [ ] **Phase 2: Game Management & Mobile Polish** - Add edit/delete game, complete mental state mobile UX
 - [ ] **Phase 3: PDF Import** - Upload Instat PDF, parse and pre-fill add game form
 - [ ] **Phase 4: Dashboard & Charts** - Summary cards, correlation insights, Recharts visualizations
@@ -90,7 +90,7 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 
 | Phase | Plans Complete | Status | Completed |
 |-------|----------------|--------|-----------|
-| 1. Database Foundation | 4/5 | In Progress|  |
+| 1. Database Foundation | 5/5 | Complete   | 2026-03-10 |
 | 2. Game Management & Mobile Polish | 0/? | Not started | - |
 | 3. PDF Import | 0/? | Not started | - |
 | 4. Dashboard & Charts | 0/? | Not started | - |
