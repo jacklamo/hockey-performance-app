@@ -14,15 +14,8 @@ export async function getCurrentUser() {
 
 export async function requireAuth() {
     const user = await getCurrentUser()
-
     if (!user) {
-        // TEMPORARY: Bypass auth for development without database
-        // TODO: Remove this bypass once database is set up
-        return {
-            id: 'dev-user-id',
-            email: 'dev@example.com',
-            name: 'Dev User'
-        }
+        throw new Error('Unauthorized')
     }
     return user
 }

@@ -26,45 +26,23 @@ export const authOptions: NextAuthOptions = {
       
       // This function runs when user tries to log in
       async authorize(credentials) {
-        // Validate input
         if (!credentials?.email || !credentials?.password) {
           return null
         }
-
-        // TEMPORARY: Bypass auth for development without database
-        // TODO: Remove this bypass once database is set up
-        try {
-          // Find user in database
-          const user = await prisma.user.findUnique({
-            where: { email: credentials.email },
-          })
-
-          // User doesn't exist
-          if (!user) {
-            return null
-          }
-
-          // Check if password matches
-          const isPasswordValid = await compare(credentials.password, user.password)
-
-          if (!isPasswordValid) {
-            return null
-          }
-
-          // Success - return user object (without password)
-          return {
-            id: user.id,
-            email: user.email,
-            name: user.name,
-          }
-        } catch (error) {
-          console.warn('Database not available, using dev user for login')
-          // Return dev user for any credentials during development
-          return {
-            id: 'dev-user-id',
-            email: credentials.email,
-            name: 'Dev User',
-          }
+        const user = await prisma.user.findUnique({
+          where: { email: credentials.email },
+        })
+        if (!user) {
+          return null
+        }
+        const isPasswordValid = await compare(credentials.password, user.password)
+        if (!isPasswordValid) {
+          return null
+        }
+        return {
+          id: user.id,
+          email: user.email,
+          name: user.name,
         }
       },
     }),
