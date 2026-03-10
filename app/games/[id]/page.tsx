@@ -33,6 +33,7 @@ export default function GameDetailPage({ params }: { params: Promise<{ id: strin
   const [game, setGame] = useState<Game | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
+  const [isConfirming, setIsConfirming] = useState(false);
   const [error, setError] = useState('');
   const [gameId, setGameId] = useState<string>('');
 
@@ -82,23 +83,14 @@ export default function GameDetailPage({ params }: { params: Promise<{ id: strin
   };
 
   const handleDelete = async () => {
-    const confirmed = window.confirm(
-      'Are you sure you want to delete this game? This cannot be undone.'
-    );
-
-    if (!confirmed) return;
-
     setIsDeleting(true);
-
     try {
       const response = await fetch(`/api/games/${gameId}`, {
         method: 'DELETE',
       });
-
       if (!response.ok) {
         throw new Error('Failed to delete game');
       }
-
       router.push('/dashboard');
     } catch (err) {
       alert('Failed to delete game. Please try again.');
@@ -308,13 +300,31 @@ export default function GameDetailPage({ params }: { params: Promise<{ id: strin
           >
             Edit Game
           </Link>
-          <button
-            onClick={handleDelete}
-            disabled={isDeleting}
-            className="flex-1 px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
-          >
-            {isDeleting ? 'Deleting...' : 'Delete Game'}
-          </button>
+          {isConfirming ? (
+            <div className="flex-1 flex gap-2">
+              <button
+                onClick={handleDelete}
+                disabled={isDeleting}
+                className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
+              >
+                {isDeleting ? 'Deleting...' : 'Confirm Delete'}
+              </button>
+              <button
+                onClick={() => setIsConfirming(false)}
+                disabled={isDeleting}
+                className="flex-1 px-4 py-3 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-50 transition-colors disabled:opacity-50"
+              >
+                Cancel
+              </button>
+            </div>
+          ) : (
+            <button
+              onClick={() => setIsConfirming(true)}
+              className="flex-1 px-6 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-colors"
+            >
+              Delete Game
+            </button>
+          )}
         </div>
       </div>
     </div>
