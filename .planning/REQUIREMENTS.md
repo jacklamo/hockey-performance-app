@@ -19,7 +19,7 @@
 
 ### Game Management
 
-- [ ] **GAME-01**: User can manually add a game with stats (date, opponent, home/away, result, goals, assists, shots, +/-, ice time)
+- [x] **GAME-01**: User can manually add a game with stats (date, opponent, home/away, result, goals, assists, shots, +/-, ice time)
 - [ ] **GAME-02**: User can edit an existing game's stats
 - [ ] **GAME-03**: User can delete a game (with confirmation)
 - [ ] **GAME-04**: User can view all games in a list sorted by date (newest first)
@@ -87,7 +87,7 @@
 | AUTH-01 | Phase 1 | Complete |
 | AUTH-02 | Phase 1 | Complete |
 | AUTH-03 | Phase 1 | Complete |
-| GAME-01 | Phase 1 | Pending |
+| GAME-01 | Phase 1 | Complete |
 | GAME-04 | Phase 1 | Pending |
 | GAME-05 | Phase 1 | Pending |
 | GAME-02 | Phase 2 | Pending |

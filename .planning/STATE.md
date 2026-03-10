@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 01-03-PLAN.md — Auth bypasses removed, middleware.ts created
-last_updated: "2026-03-10T02:14:55.420Z"
+stopped_at: Completed 01-04-PLAN.md — Inner try/catch mock bypasses removed from games and signup routes
+last_updated: "2026-03-10T02:19:28.735Z"
 last_activity: 2026-03-03 — Roadmap created, phases derived from requirements
 progress:
   total_phases: 5
   completed_phases: 0
   total_plans: 5
-  completed_plans: 3
+  completed_plans: 4
   percent: 0
 ---
 
@@ -52,6 +52,7 @@ Progress: [░░░░░░░░░░] 0%
 *Updated after each plan completion*
 | Phase 01 P02 | 3 | 2 tasks | 6 files |
 | Phase 01-database-foundation P03 | 12 | 2 tasks | 4 files |
+| Phase 01-database-foundation P04 | 1 | 2 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -69,6 +70,8 @@ Recent decisions affecting current work:
 - [Phase 01-02]: Deleted all 5 duplicate app/api/ route files (plan listed 3, [id] and [id]/mental were also vestigial duplicates)
 - [Phase 01-database-foundation]: Dev-user bypasses removed from requireAuth(), authorize(), and signup — real Railway DB session required for all auth flows
 - [Phase 01-database-foundation]: middleware.ts at project root (not src/) per Next.js App Router requirement; matcher covers /dashboard and /games
+- [Phase 01-database-foundation]: Inner try/catch mock bypasses removed from games route GET and POST — DB errors now propagate to HTTP 500
+- [Phase 01-database-foundation]: Signup route inner try/catch was already removed in Plan 03 — no changes needed in Plan 04
 
 ### Pending Todos
 
@@ -81,6 +84,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-10T02:14:55.417Z
-Stopped at: Completed 01-03-PLAN.md — Auth bypasses removed, middleware.ts created
+Last session: 2026-03-10T02:19:28.730Z
+Stopped at: Completed 01-04-PLAN.md — Inner try/catch mock bypasses removed from games and signup routes
 Resume file: None
