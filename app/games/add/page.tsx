@@ -110,8 +110,8 @@ export default function AddGamePage() {
         return;
       }
 
-      // Redirect to dashboard on success
-      router.push('/dashboard');
+      // Redirect to mental state form on success
+      router.push(`/games/${data.game.id}/mental`);
     } catch (error) {
       setErrors({
         submit: 'An error occurred while saving the game. Please try again.',
