@@ -18,11 +18,11 @@ export default function AddGamePage() {
     opponent: '',
     homeAway: '',
     result: '',
-    goals: 0,
-    assists: 0,
-    shots: 0,
-    plusMinus: 0,
-    iceTime: 0,
+    goals: '',
+    assists: '',
+    shots: '',
+    plusMinus: '',
+    iceTime: '',
   });
 
   const validateForm = () => {
@@ -55,16 +55,16 @@ export default function AddGamePage() {
     }
 
     // Stats validation (ensure non-negative except plusMinus)
-    if (formData.goals < 0) {
+    if (Number(formData.goals) < 0) {
       newErrors.goals = 'Goals cannot be negative';
     }
-    if (formData.assists < 0) {
+    if (Number(formData.assists) < 0) {
       newErrors.assists = 'Assists cannot be negative';
     }
-    if (formData.shots < 0) {
+    if (Number(formData.shots) < 0) {
       newErrors.shots = 'Shots cannot be negative';
     }
-    if (formData.iceTime < 0) {
+    if (Number(formData.iceTime) < 0) {
       newErrors.iceTime = 'Ice time cannot be negative';
     }
 
@@ -91,7 +91,14 @@ export default function AddGamePage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          goals: Number(formData.goals) || 0,
+          assists: Number(formData.assists) || 0,
+          shots: Number(formData.shots) || 0,
+          plusMinus: Number(formData.plusMinus) || 0,
+          iceTime: Number(formData.iceTime) || 0,
+        }),
       });
 
       const data = await response.json();
@@ -119,12 +126,7 @@ export default function AddGamePage() {
   ) => {
     const { name, value, type } = e.target;
 
-    // Handle number inputs
-    if (type === 'number') {
-      setFormData((prev) => ({ ...prev, [name]: Number(value) }));
-    } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
-    }
+    setFormData((prev) => ({ ...prev, [name]: value }));
 
     // Clear error for this field when user starts typing
     if (errors[name]) {
@@ -306,6 +308,7 @@ export default function AddGamePage() {
                     name="goals"
                     value={formData.goals}
                     onChange={handleChange}
+                    placeholder="0"
                     min="0"
                     className={`w-full px-4 py-3 text-lg border rounded-lg focus:ring-2 focus:ring-blue-500 text-black placeholder:text-gray-600 focus:border-blue-500 outline-none transition-colors ${
                       errors.goals ? 'border-red-500' : 'border-gray-300'
@@ -331,6 +334,7 @@ export default function AddGamePage() {
                     name="assists"
                     value={formData.assists}
                     onChange={handleChange}
+                    placeholder="0"
                     min="0"
                     className={`w-full px-4 py-3 text-lg border rounded-lg text-black placeholder:text-gray-600 focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors ${
                       errors.assists ? 'border-red-500' : 'border-gray-300'
@@ -356,6 +360,7 @@ export default function AddGamePage() {
                     name="shots"
                     value={formData.shots}
                     onChange={handleChange}
+                    placeholder="0"
                     min="0"
                     className={`w-full px-4 py-3 text-lg border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black placeholder:text-gray-600 outline-none transition-colors ${
                       errors.shots ? 'border-red-500' : 'border-gray-300'
@@ -381,6 +386,7 @@ export default function AddGamePage() {
                     name="plusMinus"
                     value={formData.plusMinus}
                     onChange={handleChange}
+                    placeholder="0"
                     className={`w-full px-4 py-3 text-lg border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black placeholder:text-gray-600 outline-none transition-colors ${
                       errors.plusMinus ? 'border-red-500' : 'border-gray-300'
                     }`}
@@ -405,6 +411,7 @@ export default function AddGamePage() {
                     name="iceTime"
                     value={formData.iceTime}
                     onChange={handleChange}
+                    placeholder="0"
                     min="0"
                     className={`w-full px-4 py-3 text-lg border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 text-black placeholder:text-gray-600 outline-none transition-colors ${
                       errors.iceTime ? 'border-red-500' : 'border-gray-300'

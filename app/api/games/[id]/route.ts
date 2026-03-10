@@ -5,11 +5,11 @@ import { requireAuth } from "@/src/lib/auth"
 // GET /api/games/[id] - Get a specific game
 export async function GET(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await requireAuth()
-    const { id } = params
+    const { id } = await params
 
     const game = await prisma.game.findUnique({
       where: {
@@ -55,11 +55,11 @@ export async function GET(
 // PUT /api/games/[id] - Update a game
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await requireAuth()
-    const { id } = params
+    const { id } = await params
     const body = await request.json()
 
     // Check if game exists and belongs to user
@@ -199,11 +199,11 @@ export async function PUT(
 // DELETE /api/games/[id] - Delete a game
 export async function DELETE(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await requireAuth()
-    const { id } = params
+    const { id } = await params
 
     // Check if game exists and belongs to user
     const existingGame = await prisma.game.findUnique({

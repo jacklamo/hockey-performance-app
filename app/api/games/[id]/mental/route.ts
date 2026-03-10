@@ -5,11 +5,11 @@ import { requireAuth } from "@/src/lib/auth"
 // POST /api/games/[id]/mental - Create or update mental state for a game
 export async function POST(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await requireAuth()
-    const { id: gameId } = params
+    const { id: gameId } = await params
     const body = await request.json()
 
     // Check if game exists and belongs to user
@@ -153,11 +153,11 @@ export async function POST(
 // PUT /api/games/[id]/mental - Update mental state for a game
 export async function PUT(
   request: NextRequest,
-  { params }: { params: { id: string } }
+  { params }: { params: Promise<{ id: string }> }
 ) {
   try {
     const user = await requireAuth()
-    const { id: gameId } = params
+    const { id: gameId } = await params
     const body = await request.json()
 
     // Check if game exists and belongs to user
