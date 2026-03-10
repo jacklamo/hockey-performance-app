@@ -246,6 +246,9 @@ export default function DashboardPage() {
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         +/-
                       </th>
+                      <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
+                        Check-In
+                      </th>
                     </tr>
                   </thead>
                   <tbody className="bg-white divide-y divide-gray-200">
@@ -292,6 +295,17 @@ export default function DashboardPage() {
                             {game.plusMinus > 0 ? '+' : ''}
                             {game.plusMinus}
                           </span>
+                        </td>
+                        <td className="px-6 py-4 whitespace-nowrap">
+                          {!game.mentalState && (
+                            <Link
+                              href={`/games/${game.id}/mental`}
+                              className="text-xs text-blue-600 hover:text-blue-800 font-medium"
+                              onClick={(e) => e.stopPropagation()}
+                            >
+                              Log check-in
+                            </Link>
+                          )}
                         </td>
                       </tr>
                     ))}
@@ -349,6 +363,14 @@ export default function DashboardPage() {
                         </span>
                       </div>
                     </div>
+                    {!game.mentalState && (
+                      <div
+                        className="mt-2 pt-2 border-t border-gray-100"
+                        onClick={(e) => { e.preventDefault(); e.stopPropagation(); router.push(`/games/${game.id}/mental`); }}
+                      >
+                        <span className="text-xs text-blue-600 font-medium">Log mental check-in →</span>
+                      </div>
+                    )}
                   </Link>
                 ))}
               </div>
