@@ -1,8 +1,8 @@
+jest.mock('pdf-parse', () => jest.fn());
 import pdfParse from 'pdf-parse';
 import { parseInstatPdf } from '@/src/lib/parse-instat-pdf';
 
-jest.mock('pdf-parse');
-const mockPdfParse = pdfParse as jest.MockedFunction<typeof pdfParse>;
+const mockPdfParse = pdfParse as jest.Mock;
 
 const makePdfData = (text: string) => ({
   text,
