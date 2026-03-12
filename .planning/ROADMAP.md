@@ -74,7 +74,12 @@ Plans:
 2. After upload, the game form fields (goals, assists, shots, opponent, date) are populated from the PDF
 3. User can review and correct any extracted field before saving — nothing auto-saves from import
 
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+
+- [ ] 03-01-PLAN.md — Install Jest, configure for Next.js, write test stubs for parser + route (Wave 0)
+- [ ] 03-02-PLAN.md — Implement parseInstatPdf lib + API route + add game page UI integration (Wave 1)
 
 ### Phase 4: Dashboard & Charts
 
@@ -114,6 +119,6 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 |-------|----------------|--------|-----------|
 | 1. Database Foundation | 5/5 | Complete   | 2026-03-10 |
 | 2. Game Management & Mobile Polish | 0/3 | Not started | - |
-| 3. PDF Import | 0/? | Not started | - |
+| 3. PDF Import | 0/2 | Not started | - |
 | 4. Dashboard & Charts | 0/? | Not started | - |
 | 5. Production Hardening | 0/? | Not started | - |
