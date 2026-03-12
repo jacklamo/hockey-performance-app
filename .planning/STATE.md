@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: planning
-stopped_at: Completed 02-game-management-mobile-polish-02-03-PLAN.md
-last_updated: "2026-03-10T18:42:08.088Z"
-last_activity: 2026-03-03 — Roadmap created, phases derived from requirements
+stopped_at: Completed 03-01-PLAN.md
+last_updated: "2026-03-12T18:38:00Z"
+last_activity: 2026-03-12 — Phase 3 Plan 01 complete: Jest setup and test scaffold
 progress:
   total_phases: 5
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 8
-  completed_plans: 7
+  completed_plans: 8
   percent: 0
 ---
 
@@ -25,12 +25,12 @@ See: .planning/PROJECT.md (updated 2026-03-03)
 
 ## Current Position
 
-Phase: 1 of 5 (Database Foundation)
-Plan: 0 of ? in current phase
-Status: Ready to plan
-Last activity: 2026-03-03 — Roadmap created, phases derived from requirements
+Phase: 3 of 5 (PDF Import)
+Plan: 1 of 2 in current phase
+Status: In progress
+Last activity: 2026-03-12 — Phase 3 Plan 01 complete: Jest setup and test scaffold
 
-Progress: [░░░░░░░░░░] 0%
+Progress: [████░░░░░░] 40%
 
 ## Performance Metrics
 
@@ -78,6 +78,8 @@ Recent decisions affecting current work:
 - [Phase 01-database-foundation]: All five Phase 1 success criteria verified end-to-end: auth persistence, game data persistence, game detail accuracy, route protection, zero mock bypass patterns
 - [Phase 02-game-management-mobile-polish]: Mobile nudge uses onClick+router.push (not nested Link) because mobile card is already a Link component — nested Link is invalid HTML
 - [Phase 02-game-management-mobile-polish]: Desktop nudge uses Link with e.stopPropagation() so row onClick still navigates to game detail when clicking outside the nudge cell
+- [Phase 03-pdf-import]: Use next/jest.js (with .js extension) for ESM-compatible import in Next.js 16
+- [Phase 03-pdf-import]: Use jest.mock('pdf-parse', () => jest.fn()) factory form — pdf-parse is CJS with function-as-default, auto-mock does not produce callable jest.fn()
 
 ### Pending Todos
 
@@ -90,6 +92,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-10T18:41:28.676Z
-Stopped at: Completed 02-game-management-mobile-polish-02-03-PLAN.md
-Resume file: None
+Last session: 2026-03-12T18:38:00Z
+Stopped at: Completed 03-01-PLAN.md
+Resume file: .planning/phases/03-pdf-import/03-01-SUMMARY.md
