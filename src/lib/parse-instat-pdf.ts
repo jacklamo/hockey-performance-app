@@ -1,4 +1,3 @@
-// Regex patterns based on hypothetical Instat layout — verify against real PDF and adjust as needed.
 import pdfParse from 'pdf-parse';
 
 export interface InstatFields {
@@ -6,6 +5,7 @@ export interface InstatFields {
   assists?: string;
   shots?: string;
   opponent?: string;
+  homeAway?: 'home' | 'away';
   date?: string;
   plusMinus?: string;
   iceTime?: string;
@@ -16,26 +16,54 @@ export async function parseInstatPdf(buffer: Buffer): Promise<InstatFields> {
   const text = data.text;
   const fields: InstatFields = {};
 
-  const goalsMatch = text.match(/Goals?\s*[:\-]?\s*(\d+)/i);
+  const goalsMatch = text.match(/^Goals\s*(\d+)/im);
   if (goalsMatch) fields.goals = goalsMatch[1];
 
-  const assistsMatch = text.match(/Assists?\s*[:\-]?\s*(\d+)/i);
+  const assistsMatch = text.match(/^Assists\s*(\d+)/im);
   if (assistsMatch) fields.assists = assistsMatch[1];
 
-  const shotsMatch = text.match(/Shots?\s*(?:on\s*Goal)?\s*[:\-]?\s*(\d+)/i);
+  // Format in PDF: "Shots / on goal2/1" — capture total shots (first number)
+  const shotsMatch = text.match(/Shots\s*\/\s*on\s+goal\s*(\d+)/i);
   if (shotsMatch) fields.shots = shotsMatch[1];
 
-  const opponentMatch = text.match(/vs\.?\s+([A-Z][A-Za-z0-9\s\-\.]+?)(?:\s*\n|\s{2,}|$)/m);
-  if (opponentMatch) fields.opponent = opponentMatch[1].trim();
+  // Date format in PDF: DD.MM.YYYY
+  const dateMatch = text.match(/(\d{2})\.(\d{2})\.(\d{4})/);
+  if (dateMatch) fields.date = `${dateMatch[3]}-${dateMatch[2]}-${dateMatch[1]}`;
 
-  const dateMatch = text.match(/(\d{4}-\d{2}-\d{2})/);
-  if (dateMatch) fields.date = dateMatch[1];
-
-  const plusMinusMatch = text.match(/[+\-\/]?[-\u2212]?\s*(?:plus[\s\-]?minus|\+\/-)\s*[:\-]?\s*([+\-]?\d+)/i);
+  const plusMinusMatch = text.match(/^Plus\s+Minus\s*([+\-]?\d+)/im);
   if (plusMinusMatch) fields.plusMinus = plusMinusMatch[1];
 
-  const iceTimeMatch = text.match(/ice\s*time\s*[:\-]?\s*(\d+(?:\.\d+)?)/i);
-  if (iceTimeMatch) fields.iceTime = iceTimeMatch[1];
+  // Time on ice format in PDF: "10:18" (MM:SS) — convert to decimal minutes for the number input
+  const iceTimeMatch = text.match(/Time\s+on\s+ice\s*(\d+):(\d+)/i);
+  if (iceTimeMatch) {
+    const minutes = parseInt(iceTimeMatch[1], 10);
+    const seconds = parseInt(iceTimeMatch[2], 10);
+    fields.iceTime = String(Math.round((minutes * 60 + seconds) / 60));
+  }
+
+  // Game header format: "TEAM_A SCORE:SCORE TEAM_B"
+  // First team is home, second is away.
+  // The player's team appears as a standalone section header in the TOC.
+  const headerMatch = text.match(/^(.+?)\s+(\d+):(\d+)\s+(.+)$/m);
+  if (headerMatch) {
+    const homeTeam = headerMatch[1].trim();
+    const awayTeam = headerMatch[4].trim();
+
+    const escape = (s: string) => s.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
+
+    // The player's team appears alone on its own line in the TOC section.
+    // The opponent only appears embedded in the header line.
+    const homeStandalone = new RegExp(`^${escape(homeTeam)}\\s*$`, 'm').test(text);
+    const awayStandalone = new RegExp(`^${escape(awayTeam)}\\s*$`, 'm').test(text);
+
+    if (awayStandalone && !homeStandalone) {
+      fields.opponent = homeTeam;
+      fields.homeAway = 'away';
+    } else if (homeStandalone && !awayStandalone) {
+      fields.opponent = awayTeam;
+      fields.homeAway = 'home';
+    }
+  }
 
   return fields;
 }

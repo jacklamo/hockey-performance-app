@@ -18,22 +18,22 @@ describe('parseInstatPdf', () => {
     mockPdfParse.mockReset();
   });
 
-  test('extracts goals from text containing "Goals 2"', async () => {
-    mockPdfParse.mockResolvedValue(makePdfData('Goals 2\n'));
+  test('extracts goals from text containing "Goals1" (no space, real PDF format)', async () => {
+    mockPdfParse.mockResolvedValue(makePdfData('Goals1\n'));
     const result = await parseInstatPdf(Buffer.from(''));
-    expect(result).toEqual(expect.objectContaining({ goals: '2' }));
+    expect(result).toEqual(expect.objectContaining({ goals: '1' }));
   });
 
-  test('extracts assists from text containing "Assists 1"', async () => {
-    mockPdfParse.mockResolvedValue(makePdfData('Assists 1\n'));
+  test('extracts assists from text containing "Assists2" (no space, real PDF format)', async () => {
+    mockPdfParse.mockResolvedValue(makePdfData('Assists2\n'));
     const result = await parseInstatPdf(Buffer.from(''));
-    expect(result).toEqual(expect.objectContaining({ assists: '1' }));
+    expect(result).toEqual(expect.objectContaining({ assists: '2' }));
   });
 
-  test('extracts shots from text containing "Shots / on goal 5 / 3"', async () => {
-    mockPdfParse.mockResolvedValue(makePdfData('Shots / on goal 5 / 3 50%\n'));
+  test('extracts shots from text containing "Shots / on goal2/1" (no space before number)', async () => {
+    mockPdfParse.mockResolvedValue(makePdfData('Shots / on goal2/1\n50%\n'));
     const result = await parseInstatPdf(Buffer.from(''));
-    expect(result).toEqual(expect.objectContaining({ shots: '5' }));
+    expect(result).toEqual(expect.objectContaining({ shots: '2' }));
   });
 
   test('extracts opponent and homeAway=home from header when home team appears standalone', async () => {
@@ -55,7 +55,7 @@ describe('parseInstatPdf', () => {
   });
 
   test('partial extraction: goals and assists present, shots absent', async () => {
-    mockPdfParse.mockResolvedValue(makePdfData('Goals 1\nAssists 2\n'));
+    mockPdfParse.mockResolvedValue(makePdfData('Goals1\nAssists2\n'));
     const result = await parseInstatPdf(Buffer.from(''));
     expect(result).toEqual(expect.objectContaining({ goals: '1', assists: '2' }));
     expect(result).not.toHaveProperty('shots');

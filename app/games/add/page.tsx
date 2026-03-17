@@ -3,12 +3,15 @@
 import { useState, FormEvent } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, FileText } from 'lucide-react';
 
 export default function AddGamePage() {
   const router = useRouter();
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
+  const [isImporting, setIsImporting] = useState(false);
+  const [importError, setImportError] = useState<string | null>(null);
+  const [importSuccess, setImportSuccess] = useState(false);
 
   // Get today's date in YYYY-MM-DD format
   const today = new Date().toISOString().split('T')[0];
@@ -121,6 +124,44 @@ export default function AddGamePage() {
     }
   };
 
+  const handlePdfUpload = async (file: File) => {
+    setIsImporting(true);
+    setImportError(null);
+    setImportSuccess(false);
+
+    const body = new FormData();
+    body.append('pdf', file);
+
+    try {
+      const res = await fetch('/api/games/parse-pdf', {
+        method: 'POST',
+        body,
+        // DO NOT set Content-Type header — browser sets it with the boundary
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        setImportError(data.error || 'Could not parse PDF. Please try again.');
+        return;
+      }
+
+      setFormData(prev => ({ ...prev, ...data.fields }));
+      setImportSuccess(true);
+    } catch {
+      setImportError('Could not parse PDF. Please check your connection and try again.');
+    } finally {
+      setIsImporting(false);
+    }
+  };
+
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (file) handlePdfUpload(file);
+    // Reset so the same file can be re-selected if needed
+    e.target.value = '';
+  };
+
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
@@ -152,6 +193,29 @@ export default function AddGamePage() {
 
         {/* Page Heading */}
         <h1 className="text-3xl font-bold text-gray-900 mb-6">Add New Game</h1>
+
+        {/* PDF Import */}
+        <div className="mb-6">
+          <label className={`cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-gray-100 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors ${isImporting || isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}>
+            <FileText className="w-4 h-4" />
+            {isImporting ? 'Parsing...' : 'Import from Instat PDF'}
+            <input
+              type="file"
+              accept=".pdf,application/pdf"
+              className="hidden"
+              onChange={handleFileChange}
+              disabled={isImporting || isLoading}
+            />
+          </label>
+          {importError && (
+            <p className="mt-2 text-sm text-red-600">{importError}</p>
+          )}
+          {importSuccess && (
+            <p className="mt-2 text-sm text-green-600">
+              Stats imported from PDF — review below.
+            </p>
+          )}
+        </div>
 
         {/* Form Card */}
         <div className="bg-white rounded-lg shadow-md p-6 sm:p-8">
