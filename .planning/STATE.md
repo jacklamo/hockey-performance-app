@@ -2,16 +2,16 @@
 gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
-status: planning
-stopped_at: Completed 03-01-PLAN.md
-last_updated: "2026-03-12T18:38:00Z"
-last_activity: 2026-03-12 — Phase 3 Plan 01 complete: Jest setup and test scaffold
+status: executing
+stopped_at: Completed 03-03-PLAN.md
+last_updated: "2026-03-17T12:49:53.428Z"
+last_activity: "2026-03-12 — Phase 3 Plan 01 complete: Jest setup and test scaffold"
 progress:
   total_phases: 5
-  completed_phases: 2
-  total_plans: 8
-  completed_plans: 8
-  percent: 0
+  completed_phases: 3
+  total_plans: 11
+  completed_plans: 11
+  percent: 40
 ---
 
 # Project State
@@ -55,6 +55,7 @@ Progress: [████░░░░░░] 40%
 | Phase 01-database-foundation P04 | 1 | 2 tasks | 1 files |
 | Phase 01-database-foundation P05 | 15 | 2 tasks | 2 files |
 | Phase 02-game-management-mobile-polish P03 | 525636 | 1 tasks | 1 files |
+| Phase 03-pdf-import P03-03 | 5 | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -80,6 +81,8 @@ Recent decisions affecting current work:
 - [Phase 02-game-management-mobile-polish]: Desktop nudge uses Link with e.stopPropagation() so row onClick still navigates to game detail when clicking outside the nudge cell
 - [Phase 03-pdf-import]: Use next/jest.js (with .js extension) for ESM-compatible import in Next.js 16
 - [Phase 03-pdf-import]: Use jest.mock('pdf-parse', () => jest.fn()) factory form — pdf-parse is CJS with function-as-default, auto-mock does not produce callable jest.fn()
+- [Phase 03-pdf-import]: Test fixture strings updated to match real Instat PDF output format — no colons, European date, shots-on-goal denominator format
+- [Phase 03-pdf-import]: homeAway detection covered by two dedicated tests (home standalone and away standalone) using two-team header fixture
 
 ### Pending Todos
 
@@ -92,6 +95,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-03-12T18:38:00Z
-Stopped at: Completed 03-01-PLAN.md
-Resume file: .planning/phases/03-pdf-import/03-01-SUMMARY.md
+Last session: 2026-03-17T12:49:40.228Z
+Stopped at: Completed 03-03-PLAN.md
+Resume file: None

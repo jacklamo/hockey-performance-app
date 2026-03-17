@@ -27,14 +27,14 @@
 
 ### Mental State Tracking
 
-- [ ] **MENTAL-01**: User can log mental state after a game (confidence, sleep hours, sleep quality, stress, physical energy, notes)
+- [x] **MENTAL-01**: User can log mental state after a game (confidence, sleep hours, sleep quality, stress, physical energy, notes)
 - [ ] **MENTAL-02**: Mental state form is mobile-friendly with large touch targets
-- [ ] **MENTAL-03**: User can see mental state data on the game detail view
+- [x] **MENTAL-03**: User can see mental state data on the game detail view
 
 ### PDF Import
 
 - [ ] **PDF-01**: User can upload an Instat full game report PDF
-- [ ] **PDF-02**: App parses the PDF and pre-fills the add game form fields
+- [x] **PDF-02**: App parses the PDF and pre-fills the add game form fields
 - [ ] **PDF-03**: User can review and correct extracted data before saving
 
 ### Dashboard & Insights
@@ -92,11 +92,11 @@
 | GAME-05 | Phase 1 | Complete |
 | GAME-02 | Phase 2 | Pending |
 | GAME-03 | Phase 2 | Pending |
-| MENTAL-01 | Phase 2 | Pending |
+| MENTAL-01 | Phase 2 | Complete |
 | MENTAL-02 | Phase 2 | Pending |
-| MENTAL-03 | Phase 2 | Pending |
+| MENTAL-03 | Phase 2 | Complete |
 | PDF-01 | Phase 3 | Pending |
-| PDF-02 | Phase 3 | Pending |
+| PDF-02 | Phase 3 | Complete |
 | PDF-03 | Phase 3 | Pending |
 | DASH-01 | Phase 4 | Pending |
 | DASH-02 | Phase 4 | Pending |
