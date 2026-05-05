@@ -93,7 +93,12 @@ Plans:
 3. Line chart shows the player's points per game over time, ordered chronologically
 4. Bar chart shows confidence and sleep values per game, readable on a phone screen
 
-**Plans**: TBD
+**Plans**: 2 plans
+
+Plans:
+
+- [ ] 04-01-PLAN.md — Extract buildLineChartData + buildBarChartData as pure functions, TDD to green (Wave 1)
+- [ ] 04-02-PLAN.md — Install recharts, wire Performance Trends section into dashboard page (Wave 2)
 
 ### Phase 5: Production Hardening
 
@@ -120,5 +125,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 1. Database Foundation | 5/5 | Complete   | 2026-03-10 |
 | 2. Game Management & Mobile Polish | 0/3 | Not started | - |
 | 3. PDF Import | 3/3 | Complete   | 2026-03-17 |
-| 4. Dashboard & Charts | 0/? | Not started | - |
+| 4. Dashboard & Charts | 0/2 | Not started | - |
 | 5. Production Hardening | 0/? | Not started | - |
