@@ -125,5 +125,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 1. Database Foundation | 5/5 | Complete   | 2026-03-10 |
 | 2. Game Management & Mobile Polish | 0/3 | Not started | - |
 | 3. PDF Import | 3/3 | Complete   | 2026-03-17 |
-| 4. Dashboard & Charts | 0/2 | Not started | - |
+| 4. Dashboard & Charts | 1/2 | In Progress|  |
 | 5. Production Hardening | 0/? | Not started | - |
