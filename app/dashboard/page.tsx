@@ -184,7 +184,7 @@ export default function DashboardPage() {
             </div>
 
             {/* Middle Section - Performance Insights */}
-            {gamesWithMentalState.length >= 3 && (
+            {gamesWithMentalState.length >= 5 && (
               <div className="mb-8">
                 <h2 className="text-xl font-bold text-gray-900 mb-4">Performance Insights</h2>
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
