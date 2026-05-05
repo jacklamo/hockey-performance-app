@@ -39,11 +39,11 @@
 
 ### Dashboard & Insights
 
-- [ ] **DASH-01**: Dashboard shows summary cards (games played, avg points, avg confidence, avg sleep)
-- [ ] **DASH-02**: Correlation insights show when user has 5+ games with mental state logged
+- [x] **DASH-01**: Dashboard shows summary cards (games played, avg points, avg confidence, avg sleep)
+- [x] **DASH-02**: Correlation insights show when user has 5+ games with mental state logged
 - [x] **DASH-03**: Line chart shows points per game over time
 - [x] **DASH-04**: Bar chart shows confidence and sleep by game
-- [ ] **DASH-05**: Charts are mobile responsive
+- [x] **DASH-05**: Charts are mobile responsive
 
 ### Production Readiness
 
@@ -98,11 +98,11 @@
 | PDF-01 | Phase 3 | Pending |
 | PDF-02 | Phase 3 | Complete |
 | PDF-03 | Phase 3 | Pending |
-| DASH-01 | Phase 4 | Pending |
-| DASH-02 | Phase 4 | Pending |
+| DASH-01 | Phase 4 | Complete |
+| DASH-02 | Phase 4 | Complete |
 | DASH-03 | Phase 4 | Complete |
 | DASH-04 | Phase 4 | Complete |
-| DASH-05 | Phase 4 | Pending |
+| DASH-05 | Phase 4 | Complete |
 | PROD-01 | Phase 5 | Pending |
 | PROD-02 | Phase 5 | Pending |
 | PROD-03 | Phase 5 | Pending |

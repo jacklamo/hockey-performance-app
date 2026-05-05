@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 04-dashboard-charts 04-01-PLAN.md
-last_updated: "2026-05-05T20:06:08.102Z"
+stopped_at: Completed 04-dashboard-charts 04-02-PLAN.md
+last_updated: "2026-05-05T20:20:45.191Z"
 last_activity: "2026-03-12 — Phase 3 Plan 01 complete: Jest setup and test scaffold"
 progress:
   total_phases: 5
-  completed_phases: 3
+  completed_phases: 4
   total_plans: 13
-  completed_plans: 12
+  completed_plans: 13
   percent: 40
 ---
 
@@ -57,6 +57,7 @@ Progress: [████░░░░░░] 40%
 | Phase 02-game-management-mobile-polish P03 | 525636 | 1 tasks | 1 files |
 | Phase 03-pdf-import P03-03 | 5 | 1 tasks | 1 files |
 | Phase 04-dashboard-charts P01 | 2 | 2 tasks | 2 files |
+| Phase 04-dashboard-charts P02 | continuation | 3 tasks | 3 files |
 
 ## Accumulated Context
 
@@ -86,6 +87,8 @@ Recent decisions affecting current work:
 - [Phase 03-pdf-import]: homeAway detection covered by two dedicated tests (home standalone and away standalone) using two-team header fixture
 - [Phase 04-dashboard-charts]: Used local Date constructor for ISO date parsing to avoid UTC offset day-shift in chart date labels
 - [Phase 04-dashboard-charts]: chart-utils.ts pure functions pattern: Game[] → ChartPoint[] with no React/Next.js imports — keeps data logic separately testable
+- [Phase 04-dashboard-charts]: ResponsiveContainer requires explicit pixel height on parent div (h-64) — no fixed width on chart components
+- [Phase 04-dashboard-charts]: Bar chart threshold 5 matches insights threshold — both use gamesWithMentalState.length >= 5
 
 ### Pending Todos
 
@@ -98,6 +101,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-05T20:06:08.099Z
-Stopped at: Completed 04-dashboard-charts 04-01-PLAN.md
+Last session: 2026-05-05T20:20:45.188Z
+Stopped at: Completed 04-dashboard-charts 04-02-PLAN.md
 Resume file: None

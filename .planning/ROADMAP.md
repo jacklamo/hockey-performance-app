@@ -15,7 +15,7 @@ Decimal phases appear between their surrounding integers in numeric order.
 - [x] **Phase 1: Database Foundation** - Connect Railway Postgres, remove all mock data bypasses, verify existing features work end-to-end with real data (completed 2026-03-10)
 - [ ] **Phase 2: Game Management & Mobile Polish** - Add edit/delete game, complete mental state mobile UX
 - [x] **Phase 3: PDF Import** - Upload Instat PDF, parse and pre-fill add game form (completed 2026-03-17)
-- [ ] **Phase 4: Dashboard & Charts** - Summary cards, correlation insights, Recharts visualizations
+- [x] **Phase 4: Dashboard & Charts** - Summary cards, correlation insights, Recharts visualizations (completed 2026-05-05)
 - [ ] **Phase 5: Production Hardening** - Security headers, rate limiting, Vercel deployment, env config
 
 ## Phase Details
@@ -125,5 +125,5 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 1. Database Foundation | 5/5 | Complete   | 2026-03-10 |
 | 2. Game Management & Mobile Polish | 0/3 | Not started | - |
 | 3. PDF Import | 3/3 | Complete   | 2026-03-17 |
-| 4. Dashboard & Charts | 1/2 | In Progress|  |
+| 4. Dashboard & Charts | 2/2 | Complete   | 2026-05-05 |
 | 5. Production Hardening | 0/? | Not started | - |
