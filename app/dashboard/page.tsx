@@ -3,6 +3,19 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import {
+  ResponsiveContainer,
+  LineChart,
+  Line,
+  BarChart,
+  Bar,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  Legend,
+} from 'recharts';
+import { buildLineChartData, buildBarChartData } from '@/src/lib/chart-utils';
 
 interface MentalState {
   confidence: number;
@@ -99,6 +112,8 @@ export default function DashboardPage() {
     : 0;
 
   const recentGames = games.slice(0, 5);
+  const lineChartData = buildLineChartData(games);
+  const barChartData = buildBarChartData(games);
 
   if (isLoading) {
     return (
@@ -210,6 +225,65 @@ export default function DashboardPage() {
                       </p>
                     </div>
                   )}
+                </div>
+              </div>
+            )}
+
+            {/* Performance Trends Section */}
+            {lineChartData.length > 0 && (
+              <div className="mb-8">
+                <h2 className="text-xl font-bold text-gray-900 mb-4">Performance Trends</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+
+                  {/* Line Chart - Points Over Time */}
+                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                    <h3 className="text-sm font-medium text-gray-500 mb-4">Points Per Game</h3>
+                    <div className="h-64">
+                      <ResponsiveContainer width="100%" height="100%">
+                        <LineChart data={lineChartData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
+                          <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                          <XAxis dataKey="date" tick={{ fontSize: 11 }} interval="preserveStartEnd" />
+                          <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
+                          <Tooltip />
+                          <Line
+                            type="monotone"
+                            dataKey="points"
+                            stroke="#2563eb"
+                            strokeWidth={2}
+                            dot={{ r: 4, fill: '#2563eb' }}
+                            activeDot={{ r: 6 }}
+                          />
+                        </LineChart>
+                      </ResponsiveContainer>
+                    </div>
+                  </div>
+
+                  {/* Bar Chart - Confidence + Sleep, or Placeholder */}
+                  {gamesWithMentalState.length >= 5 ? (
+                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                      <h3 className="text-sm font-medium text-gray-500 mb-4">Mental State Per Game</h3>
+                      <div className="h-64">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart data={barChartData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
+                            <CartesianGrid strokeDasharray="3 3" vertical={false} />
+                            <XAxis dataKey="date" tick={{ fontSize: 11 }} interval="preserveStartEnd" />
+                            <YAxis domain={[0, 10]} tick={{ fontSize: 11 }} />
+                            <Tooltip />
+                            <Legend />
+                            <Bar dataKey="confidence" name="Confidence" fill="#2563eb" radius={[2, 2, 0, 0]} />
+                            <Bar dataKey="sleep" name="Sleep (normalized)" fill="#4f46e5" radius={[2, 2, 0, 0]} />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex items-center justify-center h-64">
+                      <p className="text-sm text-gray-500 text-center">
+                        Log check-ins for 5 games to unlock this chart
+                      </p>
+                    </div>
+                  )}
+
                 </div>
               </div>
             )}
