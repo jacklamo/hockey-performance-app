@@ -13,13 +13,13 @@ export interface InstatFields {
 
 export async function parseInstatPdf(buffer: Buffer): Promise<InstatFields> {
   const data = await pdfParse(buffer);
-  const text = data.text;
+  const text = data.text.replace(/\r\n?/g, '\n');
   const fields: InstatFields = {};
 
-  const goalsMatch = text.match(/^Goals\s*(\d+)/im);
+  const goalsMatch = text.match(/Goals\s*(\d+)/i);
   if (goalsMatch) fields.goals = goalsMatch[1];
 
-  const assistsMatch = text.match(/^Assists\s*(\d+)/im);
+  const assistsMatch = text.match(/Assists\s*(\d+)/i);
   if (assistsMatch) fields.assists = assistsMatch[1];
 
   // Format in PDF: "Shots / on goal2/1" — capture total shots (first number)
@@ -30,7 +30,7 @@ export async function parseInstatPdf(buffer: Buffer): Promise<InstatFields> {
   const dateMatch = text.match(/(\d{2})\.(\d{2})\.(\d{4})/);
   if (dateMatch) fields.date = `${dateMatch[3]}-${dateMatch[2]}-${dateMatch[1]}`;
 
-  const plusMinusMatch = text.match(/^Plus\s+Minus\s*([+\-]?\d+)/im);
+  const plusMinusMatch = text.match(/Plus\s+Minus\s*([+\-]?\d+)/i);
   if (plusMinusMatch) fields.plusMinus = plusMinusMatch[1];
 
   // Time on ice format in PDF: "10:18" (MM:SS) — convert to decimal minutes for the number input

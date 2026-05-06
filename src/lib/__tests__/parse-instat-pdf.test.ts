@@ -18,13 +18,19 @@ describe('parseInstatPdf', () => {
     mockPdfParse.mockReset();
   });
 
-  test('extracts goals from text containing "Goals1" (no space, real PDF format)', async () => {
+  test('extracts goals from "Goals1" (no space, real PDF format)', async () => {
     mockPdfParse.mockResolvedValue(makePdfData('Goals1\n'));
     const result = await parseInstatPdf(Buffer.from(''));
     expect(result).toEqual(expect.objectContaining({ goals: '1' }));
   });
 
-  test('extracts assists from text containing "Assists2" (no space, real PDF format)', async () => {
+  test('extracts goals when line uses CR-only endings (\\r)', async () => {
+    mockPdfParse.mockResolvedValue(makePdfData('some text\rGoals1\r'));
+    const result = await parseInstatPdf(Buffer.from(''));
+    expect(result).toEqual(expect.objectContaining({ goals: '1' }));
+  });
+
+  test('extracts assists from "Assists2" (no space, real PDF format)', async () => {
     mockPdfParse.mockResolvedValue(makePdfData('Assists2\n'));
     const result = await parseInstatPdf(Buffer.from(''));
     expect(result).toEqual(expect.objectContaining({ assists: '2' }));
