@@ -113,7 +113,14 @@ Plans:
 4. Security headers (CSP, X-Frame-Options, XSS protection) are present on all responses
 5. API endpoints return 429 after excessive requests — rate limiting is active
 
-**Plans**: TBD
+**Plans**: 4 plans
+
+Plans:
+
+- [ ] 05-01-PLAN.md — Rate limiting: write tests + implement proxy.ts with checkRateLimit helper (Wave 1)
+- [ ] 05-02-PLAN.md — Security headers: add headers() to next.config.ts (Wave 1)
+- [ ] 05-03-PLAN.md — Secrets audit + schema.prisma directUrl + .env.example + postinstall (Wave 1)
+- [ ] 05-04-PLAN.md — Deploy to Vercel: push, configure dashboard, verify live site (Wave 2, has checkpoint)
 
 ## Progress
 
@@ -126,4 +133,4 @@ Phases execute in numeric order: 1 → 2 → 3 → 4 → 5
 | 2. Game Management & Mobile Polish | 0/3 | Not started | - |
 | 3. PDF Import | 3/3 | Complete   | 2026-03-17 |
 | 4. Dashboard & Charts | 2/2 | Complete   | 2026-05-05 |
-| 5. Production Hardening | 0/? | Not started | - |
+| 5. Production Hardening | 0/4 | Not started | - |
