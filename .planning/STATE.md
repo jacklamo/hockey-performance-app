@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 04-dashboard-charts 04-02-PLAN.md
-last_updated: "2026-05-06T16:14:45.913Z"
+stopped_at: Completed 05-02-PLAN.md
+last_updated: "2026-05-07T18:05:39.302Z"
 last_activity: "2026-03-12 — Phase 3 Plan 01 complete: Jest setup and test scaffold"
 progress:
   total_phases: 5
   completed_phases: 4
-  total_plans: 13
-  completed_plans: 13
+  total_plans: 17
+  completed_plans: 14
   percent: 40
 ---
 
@@ -58,6 +58,7 @@ Progress: [████░░░░░░] 40%
 | Phase 03-pdf-import P03-03 | 5 | 1 tasks | 1 files |
 | Phase 04-dashboard-charts P01 | 2 | 2 tasks | 2 files |
 | Phase 04-dashboard-charts P02 | continuation | 3 tasks | 3 files |
+| Phase 05-production-hardening P02 | 43 | 1 tasks | 1 files |
 
 ## Accumulated Context
 
@@ -89,6 +90,8 @@ Recent decisions affecting current work:
 - [Phase 04-dashboard-charts]: chart-utils.ts pure functions pattern: Game[] → ChartPoint[] with no React/Next.js imports — keeps data logic separately testable
 - [Phase 04-dashboard-charts]: ResponsiveContainer requires explicit pixel height on parent div (h-64) — no fixed width on chart components
 - [Phase 04-dashboard-charts]: Bar chart threshold 5 matches insights threshold — both use gamesWithMentalState.length >= 5
+- [Phase 05-production-hardening]: CSP uses unsafe-inline (no nonces) to preserve Next.js static optimization — locked decision
+- [Phase 05-production-hardening]: HSTS applied production-only via isDev flag to prevent localhost redirect loop
 
 ### Pending Todos
 
@@ -101,6 +104,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-05T20:20:45.188Z
-Stopped at: Completed 04-dashboard-charts 04-02-PLAN.md
+Last session: 2026-05-07T18:05:39.295Z
+Stopped at: Completed 05-02-PLAN.md
 Resume file: None
