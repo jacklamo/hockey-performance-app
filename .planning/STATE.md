@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: Completed 05-02-PLAN.md
-last_updated: "2026-05-07T18:05:39.302Z"
+stopped_at: "Checkpoint: 05-04 Task 2 human-verify (Vercel deployment)"
+last_updated: "2026-05-07T18:17:55.535Z"
 last_activity: "2026-03-12 — Phase 3 Plan 01 complete: Jest setup and test scaffold"
 progress:
   total_phases: 5
-  completed_phases: 4
+  completed_phases: 5
   total_plans: 17
-  completed_plans: 14
+  completed_plans: 17
   percent: 40
 ---
 
@@ -59,6 +59,7 @@ Progress: [████░░░░░░] 40%
 | Phase 04-dashboard-charts P01 | 2 | 2 tasks | 2 files |
 | Phase 04-dashboard-charts P02 | continuation | 3 tasks | 3 files |
 | Phase 05-production-hardening P02 | 43 | 1 tasks | 1 files |
+| Phase 05-production-hardening P04 | 5 | 1 tasks | 0 files |
 
 ## Accumulated Context
 
@@ -92,6 +93,7 @@ Recent decisions affecting current work:
 - [Phase 04-dashboard-charts]: Bar chart threshold 5 matches insights threshold — both use gamesWithMentalState.length >= 5
 - [Phase 05-production-hardening]: CSP uses unsafe-inline (no nonces) to preserve Next.js static optimization — locked decision
 - [Phase 05-production-hardening]: HSTS applied production-only via isDev flag to prevent localhost redirect loop
+- [Phase 05-production-hardening]: Wave 1 changes (rate limiting, security headers, directUrl, env audit) all committed and pushed to master before Vercel setup
 
 ### Pending Todos
 
@@ -104,6 +106,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-07T18:05:39.295Z
-Stopped at: Completed 05-02-PLAN.md
+Last session: 2026-05-07T18:17:55.530Z
+Stopped at: Checkpoint: 05-04 Task 2 human-verify (Vercel deployment)
 Resume file: None
