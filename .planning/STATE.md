@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: milestone
 status: executing
-stopped_at: "Checkpoint: 05-04 Task 2 human-verify (Vercel deployment)"
-last_updated: "2026-05-07T18:17:55.535Z"
+stopped_at: Completed 05-04-PLAN.md — Phase 5 production-hardening fully complete
+last_updated: "2026-07-07T21:16:33.149Z"
 last_activity: "2026-03-12 — Phase 3 Plan 01 complete: Jest setup and test scaffold"
 progress:
   total_phases: 5
@@ -60,6 +60,7 @@ Progress: [████░░░░░░] 40%
 | Phase 04-dashboard-charts P02 | continuation | 3 tasks | 3 files |
 | Phase 05-production-hardening P02 | 43 | 1 tasks | 1 files |
 | Phase 05-production-hardening P04 | 5 | 1 tasks | 0 files |
+| Phase 05-production-hardening P04 | checkpoint | 2 tasks | 0 files |
 
 ## Accumulated Context
 
@@ -94,6 +95,9 @@ Recent decisions affecting current work:
 - [Phase 05-production-hardening]: CSP uses unsafe-inline (no nonces) to preserve Next.js static optimization — locked decision
 - [Phase 05-production-hardening]: HSTS applied production-only via isDev flag to prevent localhost redirect loop
 - [Phase 05-production-hardening]: Wave 1 changes (rate limiting, security headers, directUrl, env audit) all committed and pushed to master before Vercel setup
+- [Phase 05-production-hardening]: Build command set to: prisma generate && prisma migrate deploy && next build — ensures migrations run on every Vercel deploy
+- [Phase 05-production-hardening]: Neon Postgres provisioned via Vercel Marketplace — auto-injects DATABASE_URL and DATABASE_URL_UNPOOLED
+- [Phase 05-production-hardening]: NEXTAUTH_SECRET stored in Vercel dashboard (Production only) — never committed to source code
 
 ### Pending Todos
 
@@ -106,6 +110,6 @@ None yet.
 
 ## Session Continuity
 
-Last session: 2026-05-07T18:17:55.530Z
-Stopped at: Checkpoint: 05-04 Task 2 human-verify (Vercel deployment)
+Last session: 2026-07-07T21:16:33.144Z
+Stopped at: Completed 05-04-PLAN.md — Phase 5 production-hardening fully complete
 Resume file: None
