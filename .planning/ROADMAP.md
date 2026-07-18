@@ -19,7 +19,7 @@ Full details: [milestones/v1.0-ROADMAP.md](milestones/v1.0-ROADMAP.md)
 
 ### v2.0 Polish + NHL Pipeline (Phases 6-7)
 
-- [ ] **Phase 6: UX Polish** — Production-quality UX: logout wired, no blank screens, no double-submit, graceful errors
+- [x] **Phase 6: UX Polish** — Production-quality UX: logout wired, no blank screens, no double-submit, graceful errors (completed 2026-07-18)
 - [ ] **Phase 7: NHL Data Pipeline** — Standalone Python pipeline ingesting a full season of shot events into nhl_raw.shot_events
 
 ## Phase Details
@@ -76,5 +76,5 @@ Plans:
 | 3. PDF Import | v1.0 | 3/3 | Complete | 2026-03-17 |
 | 4. Dashboard & Charts | v1.0 | 2/2 | Complete | 2026-05-05 |
 | 5. Production Hardening | v1.0 | 4/4 | Complete | 2026-07-07 |
-| 6. UX Polish | 4/5 | In Progress|  | - |
+| 6. UX Polish | 5/5 | Complete   | 2026-07-18 | - |
 | 7. NHL Data Pipeline | v2.0 | 0/? | Not started | - |

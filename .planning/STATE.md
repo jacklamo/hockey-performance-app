@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: MVP
 status: "Roadmap created, ready for /gsd:plan-phase 6"
-stopped_at: Completed 06-02-PLAN.md
-last_updated: "2026-07-18T16:39:12.454Z"
+stopped_at: Completed 06-04-PLAN.md
+last_updated: "2026-07-18T16:40:39.814Z"
 last_activity: 2026-07-07 — Roadmap created for v2.0
 progress:
   total_phases: 2
-  completed_phases: 0
+  completed_phases: 1
   total_plans: 5
-  completed_plans: 4
+  completed_plans: 5
 ---
 
 # Project State
@@ -63,6 +63,9 @@ All v1.0 decisions logged in PROJECT.md Key Decisions table.
 - [Phase 06-ux-polish]: Error card inline below Header on /games page — Logout stays accessible in error state
 | Phase 06-ux-polish P02 | 4min | 2 tasks | 3 files |
 - [Phase 06-ux-polish]: Skeletons are Server Components (no 'use client') — no client bundle impact; key={gameId} re-trigger for /games/[id] deferred to plan 04
+| Phase 06-ux-polish P04 | 12m | 2 tasks | 2 files |
+- [Phase 06-ux-polish]: Error state moved inline (not full-screen early return) so Header + Logout always accessible during errors
+- [Phase 06-ux-polish]: key={gameId} uses existing gameId state variable — no React.use() migration needed
 
 ### Pending Todos
 
@@ -75,7 +78,7 @@ All v1.0 decisions logged in PROJECT.md Key Decisions table.
 
 ## Session Continuity
 
-Last session: 2026-07-18T16:39:12.451Z
-Stopped at: Completed 06-02-PLAN.md
+Last session: 2026-07-18T16:40:39.811Z
+Stopped at: Completed 06-04-PLAN.md
 Resume file: None
 Next: /gsd:plan-phase 6
