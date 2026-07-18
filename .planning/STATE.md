@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: MVP
 status: "Roadmap created, ready for /gsd:plan-phase 6"
-stopped_at: Completed 06-05-PLAN.md
-last_updated: "2026-07-18T16:35:54.026Z"
+stopped_at: Completed 06-02-PLAN.md
+last_updated: "2026-07-18T16:39:12.454Z"
 last_activity: 2026-07-07 — Roadmap created for v2.0
 progress:
   total_phases: 2
   completed_phases: 0
   total_plans: 5
-  completed_plans: 2
+  completed_plans: 4
 ---
 
 # Project State
@@ -59,6 +59,10 @@ All v1.0 decisions logged in PROJECT.md Key Decisions table.
 - [Phase 06-ux-polish]: .skeleton-shimmer CSS class added to globals.css; used by all three loading.tsx skeleton files in plan 02
 | Phase 06-ux-polish P05 | 10m | 2 tasks | 3 files |
 - [Phase 06-05]: Add game submitting text is 'Adding...' (not 'Saving...') per UX locked decisions in CONTEXT.md
+| Phase 06-ux-polish P03 | 2 | 1 tasks | 1 files |
+- [Phase 06-ux-polish]: Error card inline below Header on /games page — Logout stays accessible in error state
+| Phase 06-ux-polish P02 | 4min | 2 tasks | 3 files |
+- [Phase 06-ux-polish]: Skeletons are Server Components (no 'use client') — no client bundle impact; key={gameId} re-trigger for /games/[id] deferred to plan 04
 
 ### Pending Todos
 
@@ -71,7 +75,7 @@ All v1.0 decisions logged in PROJECT.md Key Decisions table.
 
 ## Session Continuity
 
-Last session: 2026-07-18T16:35:54.024Z
-Stopped at: Completed 06-05-PLAN.md
+Last session: 2026-07-18T16:39:12.451Z
+Stopped at: Completed 06-02-PLAN.md
 Resume file: None
 Next: /gsd:plan-phase 6

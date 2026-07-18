@@ -76,5 +76,5 @@ Plans:
 | 3. PDF Import | v1.0 | 3/3 | Complete | 2026-03-17 |
 | 4. Dashboard & Charts | v1.0 | 2/2 | Complete | 2026-05-05 |
 | 5. Production Hardening | v1.0 | 4/4 | Complete | 2026-07-07 |
-| 6. UX Polish | 2/5 | In Progress|  | - |
+| 6. UX Polish | 4/5 | In Progress|  | - |
 | 7. NHL Data Pipeline | v2.0 | 0/? | Not started | - |
