@@ -5,7 +5,7 @@ import { checkRateLimit, RateLimitEntry } from './src/lib/rate-limit'
 
 const ipMap = new Map<string, RateLimitEntry>()
 
-export async function proxy(request: NextRequest) {
+export async function middleware(request: NextRequest) {
   const pathname = request.nextUrl.pathname
 
   // Rate limiting applies only to /api/auth routes
@@ -38,7 +38,7 @@ export async function proxy(request: NextRequest) {
   return NextResponse.next()
 }
 
-export { proxy as default }
+export { middleware as default }
 
 export const config = {
   matcher: ['/api/auth/:path*', '/dashboard/:path*', '/games/:path*'],
