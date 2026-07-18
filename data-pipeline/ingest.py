@@ -195,3 +195,78 @@ def ingest_shots(conn: psycopg.Connection, shots: list) -> int:
         cur.executemany(INSERT_SQL, shots)
     conn.commit()
     return len(shots)
+
+
+# ---------------------------------------------------------------------------
+# CLI entry point
+# ---------------------------------------------------------------------------
+
+
+def main() -> None:
+    parser = argparse.ArgumentParser(
+        description="Ingest NHL shot events into nhl_raw.shot_events."
+    )
+    parser.add_argument(
+        "--season",
+        required=True,
+        help="Season in YYYYYYYY format (e.g. 20242025 for 2024-25)",
+    )
+    args = parser.parse_args()
+    season = args.season
+
+    if season not in SEASON_DATES:
+        parser.error(
+            f"Unknown season '{season}'. Supported seasons: {list(SEASON_DATES.keys())}"
+        )
+
+    conn_str = os.environ.get("DATABASE_URL_UNPOOLED")
+    if not conn_str:
+        raise SystemExit("ERROR: DATABASE_URL_UNPOOLED env var is not set. Copy .env.example to .env and fill it in.")
+
+    conn = psycopg.connect(conn_str)
+    print(f"Connected to database.")
+    create_schema(conn)
+    print(f"Schema ready (nhl_raw.shot_events).")
+
+    print(f"Fetching game IDs for season {season}...")
+    game_ids = fetch_game_ids(season)
+    total = len(game_ids)
+    print(f"Found {total} regular-season games.")
+
+    total_shots = 0
+    failed: list = []
+
+    for i, gid in enumerate(game_ids, 1):
+        try:
+            shots = fetch_shots(gid)
+            if shots:
+                ingest_shots(conn, shots)
+                total_shots += len(shots)
+        except Exception as exc:
+            failed.append(gid)
+            print(f"[SKIP] game {gid}: {exc}")
+        if i % 50 == 0:
+            pct = i * 100 // total
+            print(f"[{i}/{total}] {pct}% — {total_shots:,} shots ingested so far")
+        time.sleep(1)
+
+    with conn.cursor() as cur:
+        cur.execute("SELECT COUNT(*) FROM nhl_raw.shot_events")
+        final_count = cur.fetchone()[0]
+    conn.close()
+
+    print()
+    print("=== NHL Data Pipeline Complete ===")
+    print(f"Season:               {season}")
+    print(f"Games processed:      {total - len(failed)}")
+    print(f"Shot events inserted: {total_shots:,}")
+    if failed:
+        ids_str = ", ".join(str(g) for g in failed)
+        print(f"Failed games:         {len(failed)} (game IDs: {ids_str})")
+    else:
+        print(f"Failed games:         0")
+    print(f"Final row count:      {final_count:,} (from nhl_raw.shot_events)")
+
+
+if __name__ == "__main__":
+    main()
