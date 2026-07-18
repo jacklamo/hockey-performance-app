@@ -6,10 +6,20 @@ nhl_raw_test schema that is created and dropped around each test.
 import os
 import pytest
 import psycopg
+from urllib.parse import urlparse, urlencode, parse_qs, urlunparse
 from dotenv import load_dotenv
 from ingest import create_schema, ingest_shots  # will fail with ImportError until plan 02
 
 load_dotenv()
+
+
+def _psycopg_url(url: str) -> str:
+    """Strip Prisma-only query params (e.g. schema=) that psycopg rejects."""
+    parsed = urlparse(url)
+    params = parse_qs(parsed.query, keep_blank_values=True)
+    params.pop("schema", None)  # remove Prisma-specific schema param
+    clean_query = urlencode({k: v[0] for k, v in params.items()})
+    return urlunparse(parsed._replace(query=clean_query))
 
 
 @pytest.fixture
@@ -18,7 +28,7 @@ def test_conn():
     db_url = os.environ.get("DATABASE_URL_UNPOOLED")
     if not db_url:
         pytest.skip("DATABASE_URL_UNPOOLED not set — skipping DB tests")
-    conn = psycopg.connect(db_url)
+    conn = psycopg.connect(_psycopg_url(db_url))
     # Override schema to nhl_raw_test to avoid touching nhl_raw
     with conn.cursor() as cur:
         cur.execute("CREATE SCHEMA IF NOT EXISTS nhl_raw_test")
