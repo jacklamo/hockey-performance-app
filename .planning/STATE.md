@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: MVP
 status: "Roadmap created, ready for /gsd:plan-phase 6"
-stopped_at: Completed 07-02-PLAN.md (ingest.py core implementation)
-last_updated: "2026-07-18T17:46:53.767Z"
+stopped_at: Completed 07-03-PLAN.md (ingest.py CLI wiring and smoke test)
+last_updated: "2026-07-18T21:26:32.943Z"
 last_activity: 2026-07-07 — Roadmap created for v2.0
 progress:
   total_phases: 2
-  completed_phases: 1
+  completed_phases: 2
   total_plans: 8
-  completed_plans: 7
+  completed_plans: 8
 ---
 
 # Project State
@@ -72,6 +72,9 @@ All v1.0 decisions logged in PROJECT.md Key Decisions table.
 | Phase 07-nhl-data-pipeline P02 | 5m | 2 tasks | 2 files |
 - [Phase 07-nhl-data-pipeline]: INSERT_SQL is module-level so test_db.py can patch ingest.INSERT_SQL to redirect inserts to nhl_raw_test schema during testing
 - [Phase 07-nhl-data-pipeline]: Strip Prisma schema= query param from DATABASE_URL_UNPOOLED before psycopg.connect() — Prisma accepts it, psycopg3 rejects it as invalid URI parameter
+| Phase 07-nhl-data-pipeline P03 | 15m | 2 tasks | 1 files |
+- [Phase 07-nhl-data-pipeline]: _psycopg_url() strips schema= Prisma param before psycopg.connect() — psycopg3 rejects it as invalid URI parameter
+- [Phase 07-nhl-data-pipeline]: Failed-game tracking: single game failure logs [SKIP] and continues — does not halt the pipeline run
 
 ### Pending Todos
 
@@ -84,7 +87,7 @@ All v1.0 decisions logged in PROJECT.md Key Decisions table.
 
 ## Session Continuity
 
-Last session: 2026-07-18T17:46:48.729Z
-Stopped at: Completed 07-02-PLAN.md (ingest.py core implementation)
+Last session: 2026-07-18T21:26:32.940Z
+Stopped at: Completed 07-03-PLAN.md (ingest.py CLI wiring and smoke test)
 Resume file: None
 Next: /gsd:plan-phase 6
