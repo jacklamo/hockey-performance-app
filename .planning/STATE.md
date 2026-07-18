@@ -3,14 +3,14 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: MVP
 status: "Roadmap created, ready for /gsd:plan-phase 6"
-stopped_at: Completed 06-04-PLAN.md
-last_updated: "2026-07-18T16:44:29.121Z"
+stopped_at: Completed 07-01-PLAN.md (Wave 0 scaffold)
+last_updated: "2026-07-18T17:42:11.484Z"
 last_activity: 2026-07-07 — Roadmap created for v2.0
 progress:
   total_phases: 2
   completed_phases: 1
-  total_plans: 5
-  completed_plans: 5
+  total_plans: 8
+  completed_plans: 6
 ---
 
 # Project State
@@ -66,6 +66,9 @@ All v1.0 decisions logged in PROJECT.md Key Decisions table.
 | Phase 06-ux-polish P04 | 12m | 2 tasks | 2 files |
 - [Phase 06-ux-polish]: Error state moved inline (not full-screen early return) so Header + Logout always accessible during errors
 - [Phase 06-ux-polish]: key={gameId} uses existing gameId state variable — no React.use() migration needed
+| Phase 07-nhl-data-pipeline P01 | 3m | 2 tasks | 10 files |
+- [Phase 07-01]: data-pipeline/.env covered by existing .env* gitignore pattern — no duplicate entry added
+- [Phase 07-01]: Wave 0 test harness: 12 test functions (plan said 14 — typo in plan; artifact specs sum to 12)
 
 ### Pending Todos
 
@@ -78,7 +81,7 @@ All v1.0 decisions logged in PROJECT.md Key Decisions table.
 
 ## Session Continuity
 
-Last session: 2026-07-18T16:40:39.811Z
-Stopped at: Completed 06-04-PLAN.md
+Last session: 2026-07-18T17:42:11.482Z
+Stopped at: Completed 07-01-PLAN.md (Wave 0 scaffold)
 Resume file: None
 Next: /gsd:plan-phase 6

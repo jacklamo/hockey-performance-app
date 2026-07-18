@@ -17,10 +17,10 @@ Requirements for the v2.0 milestone. Each maps to roadmap phases.
 
 ### NHL Pipeline
 
-- [ ] **PIPE-01**: Pipeline walks a full NHL season's date range and collects all gameIds via the schedule endpoint
-- [ ] **PIPE-02**: Pipeline fetches play-by-play for each game and filters to shot events (shot-on-goal, goal, missed-shot, blocked-shot)
-- [ ] **PIPE-03**: Pipeline inserts shot events into a `nhl_raw.shot_events` table in Postgres with idempotent upsert (no duplicate rows on re-run)
-- [ ] **PIPE-04**: Pipeline rate-limits requests (~1 req/sec), retries on 429/503 with exponential backoff, logs failed games without crashing the run, and outputs a post-ingestion row count
+- [x] **PIPE-01**: Pipeline walks a full NHL season's date range and collects all gameIds via the schedule endpoint
+- [x] **PIPE-02**: Pipeline fetches play-by-play for each game and filters to shot events (shot-on-goal, goal, missed-shot, blocked-shot)
+- [x] **PIPE-03**: Pipeline inserts shot events into a `nhl_raw.shot_events` table in Postgres with idempotent upsert (no duplicate rows on re-run)
+- [x] **PIPE-04**: Pipeline rate-limits requests (~1 req/sec), retries on 429/503 with exponential backoff, logs failed games without crashing the run, and outputs a post-ingestion row count
 
 ## Future Requirements
 
@@ -57,10 +57,10 @@ Which phases cover which requirements. Updated during roadmap creation.
 | UX-03 | Phase 6 | Complete |
 | UX-04 | Phase 6 | Complete |
 | UX-05 | Phase 6 | Complete |
-| PIPE-01 | Phase 7 | Pending |
-| PIPE-02 | Phase 7 | Pending |
-| PIPE-03 | Phase 7 | Pending |
-| PIPE-04 | Phase 7 | Pending |
+| PIPE-01 | Phase 7 | Complete |
+| PIPE-02 | Phase 7 | Complete |
+| PIPE-03 | Phase 7 | Complete |
+| PIPE-04 | Phase 7 | Complete |
 
 **Coverage:**
 
