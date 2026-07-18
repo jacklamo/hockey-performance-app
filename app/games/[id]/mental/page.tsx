@@ -3,7 +3,7 @@
 import { useState, useEffect, FormEvent } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Loader2 } from 'lucide-react';
 
 export default function MentalStatePage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
@@ -297,7 +297,14 @@ export default function MentalStatePage({ params }: { params: Promise<{ id: stri
                 disabled={isLoading || showSuccess}
                 className="sm:flex-1 bg-blue-600 text-white py-4 px-6 rounded-lg font-bold text-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
               >
-                {isLoading ? 'Saving...' : 'Save Check-In'}
+                {isLoading ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin inline mr-2" />
+                    Saving...
+                  </>
+                ) : (
+                  'Save Check-In'
+                )}
               </button>
             </div>
           </form>
