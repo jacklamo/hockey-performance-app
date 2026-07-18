@@ -3,7 +3,8 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
-import { ArrowLeft } from 'lucide-react';
+import { ArrowLeft, Loader2 } from 'lucide-react';
+import Header from '@/app/components/Header';
 
 interface MentalState {
   confidence: number;
@@ -101,23 +102,42 @@ export default function GameDetailPage({ params }: { params: Promise<{ id: strin
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-gray-600">Loading...</p>
+      <div className="min-h-screen bg-gray-50">
+        <Header title="Game Detail" />
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="h-5 w-32 bg-gray-200 rounded skeleton-shimmer mb-6" />
+          <div className="h-9 w-72 bg-gray-200 rounded skeleton-shimmer mb-2" />
+          <div className="h-6 w-24 bg-gray-200 rounded skeleton-shimmer mb-8" />
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 mb-6">
+            <div className="h-6 w-40 bg-gray-200 rounded skeleton-shimmer mb-6" />
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+              {[...Array(6)].map((_, i) => (
+                <div key={i}>
+                  <div className="h-4 w-16 bg-gray-200 rounded skeleton-shimmer mb-2" />
+                  <div className="h-9 w-12 bg-gray-200 rounded skeleton-shimmer" />
+                </div>
+              ))}
+            </div>
+          </div>
+        </div>
       </div>
     );
   }
 
   if (error || !game) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-600 mb-4">{error || 'Game not found'}</p>
-          <Link
-            href="/dashboard"
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-          >
-            Back to Dashboard
-          </Link>
+      <div className="min-h-screen bg-gray-50">
+        <Header title="Game Detail" />
+        <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="bg-white rounded-lg shadow-sm border border-red-200 p-8 text-center">
+            <p className="text-red-600 font-medium mb-4">{error || 'Game not found'}</p>
+            <Link
+              href="/dashboard"
+              className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
+            >
+              Back to Dashboard
+            </Link>
+          </div>
         </div>
       </div>
     );
@@ -127,8 +147,9 @@ export default function GameDetailPage({ params }: { params: Promise<{ id: strin
   const hasMentalState = game.mentalState !== null && game.mentalState !== undefined;
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-      <div className="max-w-4xl mx-auto">
+    <div key={gameId} className="min-h-screen bg-gray-50">
+      <Header title="Game Detail" />
+      <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Back Button */}
         <div className="mb-6">
           <Link
@@ -307,7 +328,14 @@ export default function GameDetailPage({ params }: { params: Promise<{ id: strin
                 disabled={isDeleting}
                 className="flex-1 px-4 py-3 bg-red-600 text-white rounded-lg font-semibold hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed text-sm"
               >
-                {isDeleting ? 'Deleting...' : 'Confirm Delete'}
+                {isDeleting ? (
+                  <>
+                    <Loader2 className="w-4 h-4 animate-spin inline mr-2" />
+                    Deleting...
+                  </>
+                ) : (
+                  'Confirm Delete'
+                )}
               </button>
               <button
                 onClick={() => setIsConfirming(false)}
