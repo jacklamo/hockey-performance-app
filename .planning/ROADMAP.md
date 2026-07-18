@@ -65,7 +65,12 @@ Plans:
 3. The pipeline completes a full season run without crashing; games that return 429 or 503 are retried with exponential backoff, and games that still fail after retries are logged and skipped without halting the run
 4. The pipeline outputs a post-ingestion summary to stdout: total games processed, total shot events inserted, count of failed games, and final row count queried from nhl_raw.shot_events
 
-**Plans**: TBD
+**Plans**: 3 plans
+
+Plans:
+- [ ] 07-01-PLAN.md — Project scaffold + Wave 0 test stubs (pytest harness for all 4 PIPE requirements)
+- [ ] 07-02-PLAN.md — Core ingest.py: NHL API functions + DB writer functions (tests green)
+- [ ] 07-03-PLAN.md — main() CLI loop + progress/summary + integration smoke test verification
 
 ## Progress
 
@@ -77,4 +82,4 @@ Plans:
 | 4. Dashboard & Charts | v1.0 | 2/2 | Complete | 2026-05-05 |
 | 5. Production Hardening | v1.0 | 4/4 | Complete | 2026-07-07 |
 | 6. UX Polish | 5/5 | Complete   | 2026-07-18 | - |
-| 7. NHL Data Pipeline | v2.0 | 0/? | Not started | - |
+| 7. NHL Data Pipeline | v2.0 | 0/3 | Not started | - |
