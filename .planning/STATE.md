@@ -3,8 +3,8 @@ gsd_state_version: 1.0
 milestone: v1.0
 milestone_name: MVP
 status: "Roadmap created, ready for /gsd:plan-phase 6"
-stopped_at: Completed 06-01-PLAN.md
-last_updated: "2026-07-18T16:35:49.923Z"
+stopped_at: Completed 06-05-PLAN.md
+last_updated: "2026-07-18T16:35:54.026Z"
 last_activity: 2026-07-07 — Roadmap created for v2.0
 progress:
   total_phases: 2
@@ -58,6 +58,7 @@ All v1.0 decisions logged in PROJECT.md Key Decisions table.
 - [Phase 06-ux-polish]: Header.tsx extracted as shared component; all page modifications in plans 02-04 import it to eliminate duplicate inline header code
 - [Phase 06-ux-polish]: .skeleton-shimmer CSS class added to globals.css; used by all three loading.tsx skeleton files in plan 02
 | Phase 06-ux-polish P05 | 10m | 2 tasks | 3 files |
+- [Phase 06-05]: Add game submitting text is 'Adding...' (not 'Saving...') per UX locked decisions in CONTEXT.md
 
 ### Pending Todos
 
@@ -70,7 +71,7 @@ All v1.0 decisions logged in PROJECT.md Key Decisions table.
 
 ## Session Continuity
 
-Last session: 2026-07-18T16:35:30.888Z
-Stopped at: Completed 06-01-PLAN.md
+Last session: 2026-07-18T16:35:54.024Z
+Stopped at: Completed 06-05-PLAN.md
 Resume file: None
 Next: /gsd:plan-phase 6

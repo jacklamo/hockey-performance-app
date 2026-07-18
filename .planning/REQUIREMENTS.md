@@ -11,7 +11,7 @@ Requirements for the v2.0 milestone. Each maps to roadmap phases.
 
 - [x] **UX-01**: User sees a logout button on every protected page that ends their session and redirects to /auth/login
 - [ ] **UX-02**: User sees a skeleton loading UI (not a blank screen) during initial page load on /dashboard, /games, and /games/[id]
-- [ ] **UX-03**: User sees a loading indicator on submit buttons during form mutations (add game, edit game, log mental state, delete game) and the button is disabled to prevent double-submit
+- [x] **UX-03**: User sees a loading indicator on submit buttons during form mutations (add game, edit game, log mental state, delete game) and the button is disabled to prevent double-submit
 - [ ] **UX-04**: User sees an informative empty state (not a blank area) when they have no games logged
 - [ ] **UX-05**: User sees a graceful error UI with a retry option when /dashboard or /games fails to load data
 
@@ -54,7 +54,7 @@ Which phases cover which requirements. Updated during roadmap creation.
 | ----------- | ----- | ------ |
 | UX-01 | Phase 6 | Complete |
 | UX-02 | Phase 6 | Pending |
-| UX-03 | Phase 6 | Pending |
+| UX-03 | Phase 6 | Complete |
 | UX-04 | Phase 6 | Pending |
 | UX-05 | Phase 6 | Pending |
 | PIPE-01 | Phase 7 | Pending |
