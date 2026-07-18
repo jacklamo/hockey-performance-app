@@ -5,6 +5,7 @@ import argparse
 import os
 import time
 from datetime import date, timedelta
+from urllib.parse import urlparse, urlencode, parse_qs, urlunparse
 
 import httpx
 import psycopg
@@ -24,6 +25,20 @@ SHOT_TYPES = {"shot-on-goal", "goal", "missed-shot", "blocked-shot"}
 SEASON_DATES = {
     "20242025": ("2024-10-04", "2025-04-17"),
 }
+
+# ---------------------------------------------------------------------------
+# URL helpers
+# ---------------------------------------------------------------------------
+
+
+def _psycopg_url(url: str) -> str:
+    """Strip Prisma-only query params (e.g. schema=) that psycopg rejects."""
+    parsed = urlparse(url)
+    params = parse_qs(parsed.query, keep_blank_values=True)
+    params.pop("schema", None)
+    clean_query = urlencode({k: v[0] for k, v in params.items()})
+    return urlunparse(parsed._replace(query=clean_query))
+
 
 # ---------------------------------------------------------------------------
 # HTTP helpers
@@ -223,7 +238,7 @@ def main() -> None:
     if not conn_str:
         raise SystemExit("ERROR: DATABASE_URL_UNPOOLED env var is not set. Copy .env.example to .env and fill it in.")
 
-    conn = psycopg.connect(conn_str)
+    conn = psycopg.connect(_psycopg_url(conn_str))
     print(f"Connected to database.")
     create_schema(conn)
     print(f"Schema ready (nhl_raw.shot_events).")
