@@ -82,4 +82,4 @@ Plans:
 | 4. Dashboard & Charts | v1.0 | 2/2 | Complete | 2026-05-05 |
 | 5. Production Hardening | v1.0 | 4/4 | Complete | 2026-07-07 |
 | 6. UX Polish | 5/5 | Complete   | 2026-07-18 | - |
-| 7. NHL Data Pipeline | 1/3 | In Progress|  | - |
+| 7. NHL Data Pipeline | 2/3 | In Progress|  | - |
