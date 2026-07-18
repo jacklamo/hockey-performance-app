@@ -16,6 +16,8 @@ import {
   Legend,
 } from 'recharts';
 import { buildLineChartData, buildBarChartData } from '@/src/lib/chart-utils';
+import Header from '@/app/components/Header';
+import { AlertCircle } from 'lucide-react';
 
 interface MentalState {
   confidence: number;
@@ -46,6 +48,8 @@ export default function DashboardPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
   const fetchGames = useCallback(async () => {
+    setIsLoading(true);
+    setError('');
     try {
       const response = await fetch('/api/games');
 
@@ -117,42 +121,50 @@ export default function DashboardPage() {
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-gray-600">Loading...</p>
-      </div>
-    );
-  }
-
-  if (error) {
-    return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-600 mb-4">{error}</p>
-          <button
-            onClick={fetchGames}
-            className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700"
-          >
-            Try Again
-          </button>
-        </div>
+      <div className="min-h-screen bg-gray-50">
+        <Header title="Performance Dashboard" />
+        <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+                <div className="h-4 w-24 bg-gray-200 rounded skeleton-shimmer mb-3" />
+                <div className="h-10 w-16 bg-gray-200 rounded skeleton-shimmer" />
+              </div>
+            ))}
+          </div>
+          <div className="bg-white rounded-lg shadow-sm border border-gray-200 overflow-hidden">
+            <div className="h-12 bg-gray-50 border-b border-gray-200" />
+            {[...Array(5)].map((_, i) => (
+              <div key={i} className="flex gap-6 px-6 py-4 border-b border-gray-100">
+                <div className="h-4 w-20 bg-gray-200 rounded skeleton-shimmer" />
+                <div className="h-4 w-28 bg-gray-200 rounded skeleton-shimmer" />
+                <div className="h-4 w-12 bg-gray-200 rounded skeleton-shimmer" />
+              </div>
+            ))}
+          </div>
+        </main>
       </div>
     );
   }
 
   return (
     <div className="min-h-screen bg-gray-50">
-      {/* Header */}
-      <header className="bg-white shadow-sm border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4">
-          <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-gray-900">Performance Dashboard</h1>
-          </div>
-        </div>
-      </header>
+      <Header title="Performance Dashboard" />
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-        {totalGames === 0 ? (
+        {error ? (
+          <div className="bg-white rounded-lg shadow-sm border border-red-200 p-8 text-center">
+            <AlertCircle className="w-10 h-10 text-red-500 mx-auto mb-3" />
+            <p className="text-red-600 font-medium mb-4">{error}</p>
+            <button
+              onClick={fetchGames}
+              className="bg-blue-600 text-white px-6 py-2 rounded-lg hover:bg-blue-700 transition-colors"
+            >
+              Try Again
+            </button>
+          </div>
+        ) : totalGames === 0 ? (
           <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-12 text-center">
             <h2 className="text-2xl font-bold text-gray-900 mb-2">No Games Yet</h2>
             <p className="text-gray-600 mb-6">Start tracking your performance by adding your first game!</p>
