@@ -1,11 +1,11 @@
 ---
 gsd_state_version: 1.0
-milestone: v1.0
-milestone_name: MVP
-status: "Roadmap created, ready for /gsd:plan-phase 6"
-stopped_at: Completed 07-03-PLAN.md (ingest.py CLI wiring and smoke test)
-last_updated: "2026-07-18T21:26:32.943Z"
-last_activity: 2026-07-07 — Roadmap created for v2.0
+milestone: v2.0
+milestone_name: Polish + NHL Pipeline
+status: "v2.0 complete — ready for /gsd:new-milestone"
+stopped_at: v2.0 milestone archived
+last_updated: "2026-07-19T00:00:00.000Z"
+last_activity: 2026-07-18 — v2.0 shipped (UX polish + NHL pipeline)
 progress:
   total_phases: 2
   completed_phases: 2
@@ -17,77 +17,44 @@ progress:
 
 ## Project Reference
 
-See: .planning/PROJECT.md (updated 2026-07-07)
+See: .planning/PROJECT.md (updated 2026-07-18)
 
 **Core value:** Players see the connection between how they felt and how they performed — giving them actionable insight to optimize their mental preparation.
-**Current focus:** v2.0 — Phase 6: UX Polish (next up)
+**Current focus:** Planning next milestone
 
 ## Current Position
 
-Phase: 6 — UX Polish (not started)
+Phase: — (v2.0 complete)
 Plan: —
-Status: Roadmap created, ready for /gsd:plan-phase 6
-Last activity: 2026-07-07 — Roadmap created for v2.0
+Status: v2.0 milestone archived — ready for /gsd:new-milestone
 
 ```text
-v2.0 Progress: [----------] 0% (0/2 phases)
+v2.0 Progress: [██████████] 100% (2/2 phases)
 ```
 
 ## Performance Metrics
 
 - v1.0: 17 plans across 5 phases — shipped 2026-07-07
-- v2.0: 0 plans across 2 phases — in progress
+- v2.0: 8 plans across 2 phases — shipped 2026-07-18
 
 ## Accumulated Context
 
 ### Decisions
 
-All v1.0 decisions logged in PROJECT.md Key Decisions table.
-
-**v2.0 decisions:**
-
-| Decision | Rationale |
-| -------- | --------- |
-| Zero new npm deps for Phase 6 | All UX primitives already installed — loading.tsx (App Router built-in), lucide-react (already in package.json), next-auth signOut (already in package.json) |
-| Extract Header.tsx first in Phase 6 | All page modifications depend on shared Header; building it first eliminates duplicate inline header work across pages |
-| signOut must use explicit callbackUrl | Default redirect can loop in production if NEXTAUTH_URL is misconfigured — always pass callbackUrl: '/auth/login' |
-| loading.tsx + key={params.id} for /games/[id] | loading.tsx does not re-trigger on same-segment navigation (/games/1 → /games/2); key forces remount |
-| Pipeline writes to nhl_raw schema (not public) | Prevents lock contention against live app tables; use DATABASE_URL_UNPOOLED (not pooled PgBouncer URL) |
-| Sequential pipeline fetching (~1 req/sec) | Concurrent fetching risks NHL API IP block; sequential with tenacity backoff is sufficient for one-time seasonal ingest |
-| Idempotent upsert: ON CONFLICT (game_id, event_id) DO NOTHING | Prevents duplicate rows on pipeline re-runs |
-- [Phase 06-ux-polish]: Header.tsx extracted as shared component; all page modifications in plans 02-04 import it to eliminate duplicate inline header code
-- [Phase 06-ux-polish]: .skeleton-shimmer CSS class added to globals.css; used by all three loading.tsx skeleton files in plan 02
-| Phase 06-ux-polish P05 | 10m | 2 tasks | 3 files |
-- [Phase 06-05]: Add game submitting text is 'Adding...' (not 'Saving...') per UX locked decisions in CONTEXT.md
-| Phase 06-ux-polish P03 | 2 | 1 tasks | 1 files |
-- [Phase 06-ux-polish]: Error card inline below Header on /games page — Logout stays accessible in error state
-| Phase 06-ux-polish P02 | 4min | 2 tasks | 3 files |
-- [Phase 06-ux-polish]: Skeletons are Server Components (no 'use client') — no client bundle impact; key={gameId} re-trigger for /games/[id] deferred to plan 04
-| Phase 06-ux-polish P04 | 12m | 2 tasks | 2 files |
-- [Phase 06-ux-polish]: Error state moved inline (not full-screen early return) so Header + Logout always accessible during errors
-- [Phase 06-ux-polish]: key={gameId} uses existing gameId state variable — no React.use() migration needed
-| Phase 07-nhl-data-pipeline P01 | 3m | 2 tasks | 10 files |
-- [Phase 07-01]: data-pipeline/.env covered by existing .env* gitignore pattern — no duplicate entry added
-- [Phase 07-01]: Wave 0 test harness: 12 test functions (plan said 14 — typo in plan; artifact specs sum to 12)
-| Phase 07-nhl-data-pipeline P02 | 5m | 2 tasks | 2 files |
-- [Phase 07-nhl-data-pipeline]: INSERT_SQL is module-level so test_db.py can patch ingest.INSERT_SQL to redirect inserts to nhl_raw_test schema during testing
-- [Phase 07-nhl-data-pipeline]: Strip Prisma schema= query param from DATABASE_URL_UNPOOLED before psycopg.connect() — Prisma accepts it, psycopg3 rejects it as invalid URI parameter
-| Phase 07-nhl-data-pipeline P03 | 15m | 2 tasks | 1 files |
-- [Phase 07-nhl-data-pipeline]: _psycopg_url() strips schema= Prisma param before psycopg.connect() — psycopg3 rejects it as invalid URI parameter
-- [Phase 07-nhl-data-pipeline]: Failed-game tracking: single game failure logs [SKIP] and continues — does not halt the pipeline run
+All v1.0 and v2.0 decisions logged in PROJECT.md Key Decisions table.
 
 ### Pending Todos
 
-- MENTAL-02: Mobile slider feel for mental state form (48px targets confirmed in code, physical device test pending)
+- **UX-01 gap:** Add `<Header />` to `/games/add`, `/games/[id]/edit`, `/games/[id]/mental` — mechanical 3-file change
+- **MENTAL-02:** Mobile slider feel for mental state form (48px targets confirmed in code, physical device test pending)
 
 ### Blockers/Concerns
 
-- NHL API rate limit threshold: no official documentation — community consensus is 1 req/s but empirical. Monitor during first full-season run.
-- NHL API schedule endpoint format: documented in unofficial reference only. Validate with a live call before writing the full season loop.
+- NHL API rate limit threshold: no official documentation — community consensus is 1 req/s but empirical. Monitor during full-season re-runs.
 
 ## Session Continuity
 
-Last session: 2026-07-18T21:26:32.940Z
-Stopped at: Completed 07-03-PLAN.md (ingest.py CLI wiring and smoke test)
+Last session: 2026-07-19
+Stopped at: v2.0 milestone archived
 Resume file: None
-Next: /gsd:plan-phase 6
+Next: /gsd:new-milestone
