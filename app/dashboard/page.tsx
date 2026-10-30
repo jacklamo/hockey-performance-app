@@ -83,6 +83,7 @@ export default function DashboardPage() {
     : 0;
 
   const gamesWithMentalState = games.filter(g => g.mentalState);
+  const gamesMissingCheckIn = games.filter(g => !g.mentalState);
 
   const avgConfidence = gamesWithMentalState.length > 0
     ? gamesWithMentalState.reduce((sum, game) => sum + (game.mentalState?.confidence || 0), 0) / gamesWithMentalState.length
@@ -177,6 +178,18 @@ export default function DashboardPage() {
           </div>
         ) : (
           <>
+            {gamesMissingCheckIn.length > 0 && (
+              <Link
+                href={`/games/${gamesMissingCheckIn[0].id}/mental`}
+                className="flex items-center justify-between mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg text-blue-900 hover:bg-blue-100 transition-colors"
+              >
+                <span className="font-medium">
+                  {gamesMissingCheckIn.length} {gamesMissingCheckIn.length === 1 ? 'game is' : 'games are'} missing a check-in
+                </span>
+                <span className="text-sm font-semibold">Log latest →</span>
+              </Link>
+            )}
+
             {/* Top Section - Summary Cards Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
               {/* Card 1: Games Played */}

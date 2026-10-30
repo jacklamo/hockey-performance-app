@@ -5,6 +5,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import Header from '@/app/components/Header';
+import ScaleInput from '@/app/components/ScaleInput';
+
+type ScaleKey = 'confidence' | 'sleepQuality' | 'stressLevel' | 'physicalEnergy';
 
 export default function MentalStatePage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
@@ -15,19 +18,38 @@ export default function MentalStatePage({ params }: { params: Promise<{ id: stri
   }, [params]);
 
   const [isLoading, setIsLoading] = useState(false);
-  const [showSuccess, setShowSuccess] = useState(false);
-  const [formData, setFormData] = useState({
-    confidence: 5,
+  const [error, setError] = useState('');
+  const [formData, setFormData] = useState<{
+    confidence: number | null;
+    sleepHours: number;
+    sleepQuality: number | null;
+    stressLevel: number | null;
+    physicalEnergy: number | null;
+    notes: string;
+  }>({
+    confidence: null,
     sleepHours: 7,
-    sleepQuality: 5,
-    stressLevel: 5,
-    physicalEnergy: 5,
+    sleepQuality: null,
+    stressLevel: null,
+    physicalEnergy: null,
     notes: '',
   });
 
   const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     if (!gameId) return;
+
+    if (
+      formData.confidence === null ||
+      formData.sleepQuality === null ||
+      formData.stressLevel === null ||
+      formData.physicalEnergy === null
+    ) {
+      setError('Please answer all four 1–10 questions.');
+      return;
+    }
+
+    setError('');
     setIsLoading(true);
 
     try {
@@ -41,40 +63,35 @@ export default function MentalStatePage({ params }: { params: Promise<{ id: stri
 
       if (!response.ok) {
         const data = await response.json();
-        alert(data.error || 'Failed to save mental state');
+        setError(data.error || 'Failed to save check-in');
         setIsLoading(false);
         return;
       }
 
-      // Show success message
-      setShowSuccess(true);
-
-      // Redirect after 1 second
-      setTimeout(() => {
-        router.push(`/games/${gameId}`);
-      }, 1000);
-    } catch (error) {
-      console.error('Error saving mental state:', error);
-      alert('An error occurred. Please try again.');
+      // Stay in the loading state until navigation completes
+      router.push(`/games/${gameId}`);
+    } catch (err) {
+      console.error('Error saving mental state:', err);
+      setError('An error occurred. Please try again.');
       setIsLoading(false);
     }
+  };
+
+  const setScale = (key: ScaleKey) => (value: number) => {
+    setFormData((prev) => ({ ...prev, [key]: value }));
+    if (error) setError('');
   };
 
   const handleChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
   ) => {
     const { name, value, type } = e.target;
-
-    if (type === 'number' || type === 'range') {
-      setFormData((prev) => ({ ...prev, [name]: Number(value) }));
-    } else {
-      setFormData((prev) => ({ ...prev, [name]: value }));
-    }
+    setFormData((prev) => ({ ...prev, [name]: type === 'number' ? Number(value) : value }));
   };
 
   return (
     <>
-    <Header title="Post-Game Check-In" />
+    <Header title="Game Check-In" />
     <div className="bg-gradient-to-b from-blue-50 to-white py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-2xl mx-auto">
         {/* Back Button */}
@@ -89,54 +106,23 @@ export default function MentalStatePage({ params }: { params: Promise<{ id: stri
         {/* Page Heading */}
         <div className="mb-6">
           <p className="text-gray-600 italic">
-            This takes 90 seconds. Answer honestly - this is for you, not your coach.
+            Think back to how you felt going into the game. This takes 90 seconds. Answer honestly - this is for you, not your coach.
           </p>
         </div>
-
-        {/* Success Message */}
-        {showSuccess && (
-          <div className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg">
-            <p className="text-green-800 font-medium text-center">
-              Check-in saved! ✓
-            </p>
-          </div>
-        )}
 
         {/* Form Card */}
         <div className="bg-white rounded-lg shadow-lg p-6 sm:p-8">
           <form onSubmit={handleSubmit} className="space-y-8">
-            {/* Question 1 - Confidence */}
-            <div>
-              <label className="block text-lg font-semibold text-gray-900 mb-3">
-                How confident did you feel before the game?
-              </label>
-              <div className="flex items-center gap-3 mb-2">
-                <span className="text-2xl">😟</span>
-                <input
-                  type="range"
-                  name="confidence"
-                  min="1"
-                  max="10"
-                  value={formData.confidence}
-                  onChange={handleChange}
-                  className="flex-1 h-12 appearance-none bg-gray-200 rounded-lg outline-none slider-thumb"
-                  style={{
-                    background: `linear-gradient(to right, #3B82F6 0%, #3B82F6 ${
-                      ((formData.confidence - 1) / 9) * 100
-                    }%, #E5E7EB ${((formData.confidence - 1) / 9) * 100}%, #E5E7EB 100%)`,
-                  }}
-                  disabled={isLoading}
-                />
-                <span className="text-2xl">😊</span>
-              </div>
-              <div className="text-center">
-                <span className="inline-block bg-blue-100 text-blue-800 px-4 py-2 rounded-full font-bold text-lg">
-                  {formData.confidence}
-                </span>
-              </div>
-            </div>
+            <ScaleInput
+              label="How confident did you feel before the game?"
+              value={formData.confidence}
+              onChange={setScale('confidence')}
+              lowLabel="Not confident"
+              highLabel="Very confident"
+              disabled={isLoading}
+            />
 
-            {/* Question 2 - Sleep Hours */}
+            {/* Sleep Hours */}
             <div>
               <label
                 htmlFor="sleepHours"
@@ -151,6 +137,7 @@ export default function MentalStatePage({ params }: { params: Promise<{ id: stri
                 min="0"
                 max="14"
                 step="0.5"
+                inputMode="decimal"
                 value={formData.sleepHours}
                 onChange={handleChange}
                 className="w-full px-6 py-4 text-2xl font-bold text-center border-2 border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500 outline-none transition-colors text-black"
@@ -161,106 +148,34 @@ export default function MentalStatePage({ params }: { params: Promise<{ id: stri
               </p>
             </div>
 
-            {/* Question 3 - Sleep Quality */}
-            <div>
-              <label className="block text-lg font-semibold text-gray-900 mb-3">
-                How would you rate your sleep quality?
-              </label>
-              <div className="mb-3">
-                <input
-                  type="range"
-                  name="sleepQuality"
-                  min="1"
-                  max="10"
-                  value={formData.sleepQuality}
-                  onChange={handleChange}
-                  className="w-full h-12 appearance-none bg-gray-200 rounded-lg outline-none slider-thumb"
-                  style={{
-                    background: `linear-gradient(to right, #3B82F6 0%, #3B82F6 ${
-                      ((formData.sleepQuality - 1) / 9) * 100
-                    }%, #E5E7EB ${((formData.sleepQuality - 1) / 9) * 100}%, #E5E7EB 100%)`,
-                  }}
-                  disabled={isLoading}
-                />
-              </div>
-              <div className="flex justify-between text-sm text-gray-600 mb-2">
-                <span>Poor</span>
-                <span>Excellent</span>
-              </div>
-              <div className="text-center">
-                <span className="inline-block bg-blue-100 text-blue-800 px-4 py-2 rounded-full font-bold text-lg">
-                  {formData.sleepQuality}
-                </span>
-              </div>
-            </div>
+            <ScaleInput
+              label="How would you rate your sleep quality?"
+              value={formData.sleepQuality}
+              onChange={setScale('sleepQuality')}
+              lowLabel="Poor"
+              highLabel="Excellent"
+              disabled={isLoading}
+            />
 
-            {/* Question 4 - Stress Level */}
-            <div>
-              <label className="block text-lg font-semibold text-gray-900 mb-3">
-                What was your stress level today?
-              </label>
-              <div className="mb-3">
-                <input
-                  type="range"
-                  name="stressLevel"
-                  min="1"
-                  max="10"
-                  value={formData.stressLevel}
-                  onChange={handleChange}
-                  className="w-full h-12 appearance-none bg-gray-200 rounded-lg outline-none slider-thumb"
-                  style={{
-                    background: `linear-gradient(to right, #3B82F6 0%, #3B82F6 ${
-                      ((formData.stressLevel - 1) / 9) * 100
-                    }%, #E5E7EB ${((formData.stressLevel - 1) / 9) * 100}%, #E5E7EB 100%)`,
-                  }}
-                  disabled={isLoading}
-                />
-              </div>
-              <div className="flex justify-between text-sm text-gray-600 mb-2">
-                <span>Relaxed</span>
-                <span>Very Stressed</span>
-              </div>
-              <div className="text-center">
-                <span className="inline-block bg-blue-100 text-blue-800 px-4 py-2 rounded-full font-bold text-lg">
-                  {formData.stressLevel}
-                </span>
-              </div>
-            </div>
+            <ScaleInput
+              label="What was your stress level today?"
+              value={formData.stressLevel}
+              onChange={setScale('stressLevel')}
+              lowLabel="Relaxed"
+              highLabel="Very Stressed"
+              disabled={isLoading}
+            />
 
-            {/* Question 5 - Physical Energy */}
-            <div>
-              <label className="block text-lg font-semibold text-gray-900 mb-3">
-                How did you feel physically?
-              </label>
-              <div className="mb-3">
-                <input
-                  type="range"
-                  name="physicalEnergy"
-                  min="1"
-                  max="10"
-                  value={formData.physicalEnergy}
-                  onChange={handleChange}
-                  className="w-full h-12 appearance-none bg-gray-200 rounded-lg outline-none slider-thumb"
-                  style={{
-                    background: `linear-gradient(to right, #3B82F6 0%, #3B82F6 ${
-                      ((formData.physicalEnergy - 1) / 9) * 100
-                    }%, #E5E7EB ${((formData.physicalEnergy - 1) / 9) * 100}%, #E5E7EB 100%)`,
-                  }}
-                  disabled={isLoading}
-                />
-              </div>
-              <div className="flex justify-between text-sm text-gray-600 mb-2">
-                <span>Exhausted</span>
-                <span>Energized</span>
-              </div>
-              <div className="text-center">
-                <span className="inline-block bg-blue-100 text-blue-800 px-4 py-2 rounded-full font-bold text-lg">
-                  {formData.physicalEnergy}
-                </span>
-              </div>
-            </div>
+            <ScaleInput
+              label="How did you feel physically?"
+              value={formData.physicalEnergy}
+              onChange={setScale('physicalEnergy')}
+              lowLabel="Exhausted"
+              highLabel="Energized"
+              disabled={isLoading}
+            />
 
-            {/* Question 6 - Notes (Optional) */}
+            {/* Notes (Optional) */}
             <div>
               <label
                 htmlFor="notes"
@@ -284,6 +199,12 @@ export default function MentalStatePage({ params }: { params: Promise<{ id: stri
               </p>
             </div>
 
+            {error && (
+              <p role="alert" className="text-red-600 text-sm font-medium">
+                {error}
+              </p>
+            )}
+
             {/* Action Buttons */}
             <div className="flex flex-col-reverse sm:flex-row gap-3 pt-4">
               <Link
@@ -294,7 +215,7 @@ export default function MentalStatePage({ params }: { params: Promise<{ id: stri
               </Link>
               <button
                 type="submit"
-                disabled={isLoading || showSuccess}
+                disabled={isLoading}
                 className="sm:flex-1 bg-blue-600 text-white py-4 px-6 rounded-lg font-bold text-lg hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed shadow-lg"
               >
                 {isLoading ? (
@@ -310,37 +231,6 @@ export default function MentalStatePage({ params }: { params: Promise<{ id: stri
           </form>
         </div>
       </div>
-
-      <style jsx>{`
-        .slider-thumb::-webkit-slider-thumb {
-          appearance: none;
-          width: 28px;
-          height: 28px;
-          background: #3B82F6;
-          border: 4px solid white;
-          border-radius: 50%;
-          cursor: pointer;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        }
-
-        .slider-thumb::-moz-range-thumb {
-          width: 28px;
-          height: 28px;
-          background: #3B82F6;
-          border: 4px solid white;
-          border-radius: 50%;
-          cursor: pointer;
-          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
-        }
-
-        .slider-thumb:active::-webkit-slider-thumb {
-          box-shadow: 0 0 0 8px rgba(59, 130, 246, 0.2);
-        }
-
-        .slider-thumb:active::-moz-range-thumb {
-          box-shadow: 0 0 0 8px rgba(59, 130, 246, 0.2);
-        }
-      `}</style>
     </div>
     </>
   );

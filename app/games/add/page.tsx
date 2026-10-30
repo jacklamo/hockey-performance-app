@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, FormEvent } from 'react';
+import { useState, useRef, FormEvent } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, FileText, Loader2 } from 'lucide-react';
@@ -13,11 +13,13 @@ export default function AddGamePage() {
   const [isImporting, setIsImporting] = useState(false);
   const [importError, setImportError] = useState<string | null>(null);
   const [importSuccess, setImportSuccess] = useState(false);
+  const [savedNotice, setSavedNotice] = useState(false);
+  const addAnotherRef = useRef(false);
 
   // Get today's date in YYYY-MM-DD format
   const today = new Date().toISOString().split('T')[0];
 
-  const [formData, setFormData] = useState({
+  const emptyForm = {
     date: today,
     opponent: '',
     homeAway: '',
@@ -27,7 +29,8 @@ export default function AddGamePage() {
     shots: '',
     plusMinus: '',
     iceTime: '',
-  });
+  };
+  const [formData, setFormData] = useState(emptyForm);
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -81,6 +84,7 @@ export default function AddGamePage() {
 
     // Clear previous errors
     setErrors({});
+    setSavedNotice(false);
 
     // Validate form
     if (!validateForm()) {
@@ -111,6 +115,14 @@ export default function AddGamePage() {
         setErrors({
           submit: data.error || 'An error occurred while saving the game.',
         });
+        return;
+      }
+
+      if (addAnotherRef.current) {
+        setFormData(emptyForm);
+        setImportSuccess(false);
+        setSavedNotice(true);
+        window.scrollTo({ top: 0 });
         return;
       }
 
@@ -193,6 +205,12 @@ export default function AddGamePage() {
           <ArrowLeft className="w-4 h-4" />
           Back to Dashboard
         </Link>
+
+        {savedNotice && (
+          <div role="status" className="mb-6 p-4 bg-green-50 border border-green-200 rounded-lg text-green-800 font-medium">
+            Game saved. Add the next one below — log check-ins from the dashboard.
+          </div>
+        )}
 
         {/* PDF Import */}
         <div className="mb-6">
@@ -515,6 +533,15 @@ export default function AddGamePage() {
               </Link>
               <button
                 type="submit"
+                onClick={() => { addAnotherRef.current = true; }}
+                disabled={isLoading}
+                className="sm:flex-1 border-2 border-blue-600 text-blue-600 py-3 px-6 rounded-lg font-semibold hover:bg-blue-50 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                Save &amp; Add Another
+              </button>
+              <button
+                type="submit"
+                onClick={() => { addAnotherRef.current = false; }}
                 disabled={isLoading}
                 className="sm:flex-1 bg-blue-600 text-white py-3 px-6 rounded-lg font-semibold hover:bg-blue-700 focus:ring-4 focus:ring-blue-300 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
               >
@@ -524,7 +551,7 @@ export default function AddGamePage() {
                     Adding...
                   </>
                 ) : (
-                  'Save Game'
+                  'Save & Check In'
                 )}
               </button>
             </div>
