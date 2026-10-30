@@ -198,3 +198,16 @@ describe('buildBarChartData', () => {
     expect(typeof result[0].sleep).toBe('number');
   });
 });
+
+describe('game numbers on chart points', () => {
+  test('same-day games get distinct, chronological game numbers shared by both charts', () => {
+    const ms = { confidence: 5, sleepHours: 8, sleepQuality: 5, stressLevel: 5, physicalEnergy: 5 };
+    const games: Game[] = [
+      makeGame({ id: 'a', date: '2024-03-15' }),
+      makeGame({ id: 'b', date: '2024-03-15', mentalState: ms }),
+      makeGame({ id: 'c', date: '2024-03-16', mentalState: ms }),
+    ];
+    expect(buildLineChartData(games).map((p) => p.game)).toEqual([1, 2, 3]);
+    expect(buildBarChartData(games).map((p) => p.game)).toEqual([2, 3]);
+  });
+});

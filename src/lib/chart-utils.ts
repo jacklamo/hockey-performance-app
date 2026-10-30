@@ -25,11 +25,13 @@ interface Game {
 
 // Output shapes for Recharts
 export interface LineChartPoint {
+  game: number;   // 1-based chronological game number across all games
   date: string;   // e.g. "Mar 15"
   points: number; // goals + assists
 }
 
 export interface BarChartPoint {
+  game: number;       // 1-based chronological game number across all games
   date: string;       // e.g. "Mar 15"
   confidence: number; // 0–10 (passed through as-is)
   sleep: number;      // normalized: (sleepHours / 12) * 10, 1 decimal
@@ -65,6 +67,7 @@ export function buildLineChartData(games: Game[]): LineChartPoint[] {
   const last10 = sorted.slice(-10);
 
   return last10.map((game) => ({
+    game: sorted.indexOf(game) + 1,
     date: formatDate(game.date),
     points: game.goals + game.assists,
   }));
@@ -86,6 +89,7 @@ export function buildBarChartData(games: Game[]): BarChartPoint[] {
     const ms = game.mentalState!;
     const sleep = parseFloat(((ms.sleepHours / 12) * 10).toFixed(1));
     return {
+      game: sorted.indexOf(game) + 1,
       date: formatDate(game.date),
       confidence: ms.confidence,
       sleep,

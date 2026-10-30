@@ -42,6 +42,9 @@ interface Game {
   mentalState?: MentalState;
 }
 
+const gameTooltipLabel = (game: unknown, payload: readonly { payload?: { date?: string } }[]) =>
+  `Game #${game} · ${payload?.[0]?.payload?.date ?? ''}`;
+
 export default function DashboardPage() {
   const router = useRouter();
   const [games, setGames] = useState<Game[]>([]);
@@ -267,9 +270,9 @@ export default function DashboardPage() {
                       <ResponsiveContainer width="100%" height="100%">
                         <LineChart data={lineChartData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
                           <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                          <XAxis dataKey="date" tick={{ fontSize: 11 }} interval="preserveStartEnd" />
+                          <XAxis dataKey="game" tickFormatter={(g) => `#${g}`} tick={{ fontSize: 11 }} interval="preserveStartEnd" />
                           <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
-                          <Tooltip />
+                          <Tooltip labelFormatter={gameTooltipLabel} />
                           <Line
                             type="monotone"
                             dataKey="points"
@@ -291,9 +294,9 @@ export default function DashboardPage() {
                         <ResponsiveContainer width="100%" height="100%">
                           <BarChart data={barChartData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
                             <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                            <XAxis dataKey="date" tick={{ fontSize: 11 }} interval="preserveStartEnd" />
+                            <XAxis dataKey="game" tickFormatter={(g) => `#${g}`} tick={{ fontSize: 11 }} interval="preserveStartEnd" />
                             <YAxis domain={[0, 10]} tick={{ fontSize: 11 }} />
-                            <Tooltip />
+                            <Tooltip labelFormatter={gameTooltipLabel} />
                             <Legend />
                             <Bar dataKey="confidence" name="Confidence" fill="#2563eb" radius={[2, 2, 0, 0]} />
                             <Bar dataKey="sleep" name="Sleep (normalized)" fill="#4f46e5" radius={[2, 2, 0, 0]} />
