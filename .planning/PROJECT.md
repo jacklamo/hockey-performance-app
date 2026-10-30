@@ -42,7 +42,7 @@ Players see the connection between how they felt and how they performed — givi
 
 ### Active
 
-- [ ] Logout button on form pages: `/games/add`, `/games/[id]/edit`, `/games/[id]/mental` — UX-01 gap from v2.0
+- [x] Logout button on form pages: `/games/add`, `/games/[id]/edit`, `/games/[id]/mental` — UX-01 gap from v2.0
 - [ ] Mobile slider feel for mental state form (MENTAL-02 — 48px targets confirmed, human device test pending)
 
 ### Out of Scope

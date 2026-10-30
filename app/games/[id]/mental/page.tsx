@@ -4,6 +4,7 @@ import { useState, useEffect, FormEvent } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Loader2 } from 'lucide-react';
+import Header from '@/app/components/Header';
 
 export default function MentalStatePage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
@@ -72,7 +73,9 @@ export default function MentalStatePage({ params }: { params: Promise<{ id: stri
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-blue-50 to-white py-8 px-4 sm:px-6 lg:px-8">
+    <>
+    <Header title="Post-Game Check-In" />
+    <div className="bg-gradient-to-b from-blue-50 to-white py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-2xl mx-auto">
         {/* Back Button */}
         <Link
@@ -85,9 +88,6 @@ export default function MentalStatePage({ params }: { params: Promise<{ id: stri
 
         {/* Page Heading */}
         <div className="mb-6">
-          <h1 className="text-3xl font-bold text-gray-900 mb-2">
-            Post-Game Check-In
-          </h1>
           <p className="text-gray-600 italic">
             This takes 90 seconds. Answer honestly - this is for you, not your coach.
           </p>
@@ -342,5 +342,6 @@ export default function MentalStatePage({ params }: { params: Promise<{ id: stri
         }
       `}</style>
     </div>
+    </>
   );
 }

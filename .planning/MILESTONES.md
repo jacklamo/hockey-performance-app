@@ -41,6 +41,6 @@
 
 ### Known Gaps
 
-- **UX-01 (partial):** Header.tsx Logout not wired to `/games/add`, `/games/[id]/edit`, `/games/[id]/mental` — 3 middleware-protected form pages have no Logout button. Mechanical fix deferred to next maintenance pass.
+- **UX-01 (partial, since fixed):** Header.tsx Logout was not wired to `/games/add`, `/games/[id]/edit`, `/games/[id]/mental` — fixed post-milestone (Header added to all 3 form pages).
 
 ---

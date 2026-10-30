@@ -4,6 +4,7 @@ import { useState, useEffect, useCallback, FormEvent } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Loader2 } from 'lucide-react';
+import Header from '@/app/components/Header';
 
 export default function EditGamePage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
@@ -159,27 +160,35 @@ export default function EditGamePage({ params }: { params: Promise<{ id: string 
 
   if (isLoading) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <p className="text-gray-600">Loading...</p>
-      </div>
+      <>
+        <Header title="Edit Game" />
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <p className="text-gray-600">Loading...</p>
+        </div>
+      </>
     );
   }
 
   if (error) {
     return (
-      <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-        <div className="text-center">
-          <p className="text-red-600 mb-4">{error}</p>
-          <Link href="/dashboard" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Back to Dashboard</Link>
+      <>
+        <Header title="Edit Game" />
+        <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+          <div className="text-center">
+            <p className="text-red-600 mb-4">{error}</p>
+            <Link href="/dashboard" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700">Back to Dashboard</Link>
+          </div>
         </div>
-      </div>
+      </>
     );
   }
 
   const today = new Date().toISOString().split('T')[0];
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+    <>
+    <Header title="Edit Game" />
+    <div className="bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-2xl mx-auto">
         {/* Back Button */}
         <Link
@@ -189,9 +198,6 @@ export default function EditGamePage({ params }: { params: Promise<{ id: string 
           <ArrowLeft className="w-4 h-4" />
           Back to Game
         </Link>
-
-        {/* Page Heading */}
-        <h1 className="text-3xl font-bold text-gray-900 mb-6">Edit Game</h1>
 
         {/* Form Card */}
         <div className="bg-white rounded-lg shadow-md p-6 sm:p-8">
@@ -499,5 +505,6 @@ export default function EditGamePage({ params }: { params: Promise<{ id: string 
         </div>
       </div>
     </div>
+    </>
   );
 }

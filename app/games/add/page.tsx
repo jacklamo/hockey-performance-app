@@ -4,6 +4,7 @@ import { useState, FormEvent } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, FileText, Loader2 } from 'lucide-react';
+import Header from '@/app/components/Header';
 
 export default function AddGamePage() {
   const router = useRouter();
@@ -180,7 +181,9 @@ export default function AddGamePage() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+    <>
+    <Header title="Add New Game" />
+    <div className="bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-2xl mx-auto">
         {/* Back Button */}
         <Link
@@ -190,9 +193,6 @@ export default function AddGamePage() {
           <ArrowLeft className="w-4 h-4" />
           Back to Dashboard
         </Link>
-
-        {/* Page Heading */}
-        <h1 className="text-3xl font-bold text-gray-900 mb-6">Add New Game</h1>
 
         {/* PDF Import */}
         <div className="mb-6">
@@ -532,5 +532,6 @@ export default function AddGamePage() {
         </div>
       </div>
     </div>
+    </>
   );
 }

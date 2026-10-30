@@ -45,7 +45,6 @@ All v1.0 and v2.0 decisions logged in PROJECT.md Key Decisions table.
 
 ### Pending Todos
 
-- **UX-01 gap:** Add `<Header />` to `/games/add`, `/games/[id]/edit`, `/games/[id]/mental` — mechanical 3-file change
 - **MENTAL-02:** Mobile slider feel for mental state form (48px targets confirmed in code, physical device test pending)
 
 ### Blockers/Concerns
