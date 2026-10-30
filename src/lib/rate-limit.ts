@@ -1,8 +1,8 @@
 export const RATE_LIMIT = 10
 export const WINDOW_MS = 15 * 60 * 1000
 
-// The demo account is public and resets on every login, so it gets its own, much looser bucket.
-export const DEMO_LIMIT = 30
+// Starting a demo creates a user and a season of sample data, so it gets its own bucket.
+export const DEMO_LIMIT = 10
 export const DEMO_WINDOW_MS = 60 * 1000
 
 export type AuthBucket = 'credentials' | 'signup' | 'demo'

@@ -68,7 +68,7 @@ export async function middleware(request: NextRequest) {
   // Auth protection for dashboard, games and insights routes
   if (pathname.startsWith('/dashboard') || pathname.startsWith('/games') || pathname.startsWith('/insights')) {
     const token = await getToken({ req: request })
-    if (!token) {
+    if (!token || (typeof token.demoExpiresAt === 'number' && token.demoExpiresAt < Date.now())) {
       const loginUrl = new URL('/auth/login', request.url)
       return NextResponse.redirect(loginUrl)
     }

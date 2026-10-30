@@ -27,3 +27,14 @@ describe('buildDemoGames', () => {
     expect(missing[0]).toBe(games[games.length - 1])
   })
 })
+
+import { isDemoUser, DEMO_EMAIL, DEMO_DOMAIN } from '../demo-credentials'
+
+describe('isDemoUser', () => {
+  test('recognises the entry email and per-session demo users only', () => {
+    expect(isDemoUser(DEMO_EMAIL)).toBe(true)
+    expect(isDemoUser(`demo-abc${DEMO_DOMAIN}`)).toBe(true)
+    expect(isDemoUser('player@gmail.com')).toBe(false)
+    expect(isDemoUser(undefined)).toBe(false)
+  })
+})

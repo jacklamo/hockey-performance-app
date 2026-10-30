@@ -13,7 +13,7 @@ A full-stack web app that helps hockey players see how **sleep, confidence, stre
 - **Mental check-in**: confidence, sleep hours and quality, stress and physical energy on 1–10 scales, plus notes.
 - **Dashboard**: summary stats, plain-language insights, and charts of points per game and points by confidence and sleep. A Charts | Rink switch shows the same games as pucks on a rink.
 - **Insights report**: for each insight, how it was calculated, what went into it, how much to trust it, and what it could mean. Each game page also shows how that game fits your patterns.
-- **Demo account**: one click on the landing page loads a seeded sample season (it resets on every demo login).
+- **Private demo**: one click on the landing page starts your own isolated demo account with a seeded sample season, so visitors never see or overwrite each other's data. It's deleted after 24 hours.
 - **Accounts**: email and password sign-up with JWT sessions; every page and API route is scoped to the signed-in user.
 - **NHL shot-data pipeline**: a Python tool that ingests a full NHL season of shot events into Postgres (see [`data-pipeline/`](data-pipeline/README.md)).
 

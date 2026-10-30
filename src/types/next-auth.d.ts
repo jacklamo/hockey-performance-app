@@ -16,7 +16,8 @@ declare module 'next-auth' {
 }
 
 declare module 'next-auth/jwt' {
-    interface jwt {
+    interface JWT {
         id: string
+        demoExpiresAt?: number
     }
 }

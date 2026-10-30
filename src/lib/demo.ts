@@ -1,10 +1,7 @@
 import { randomUUID } from 'crypto'
-import { hash } from 'bcryptjs'
 import type { PrismaClient } from '@prisma/client'
 
-import { DEMO_EMAIL, DEMO_PASSWORD } from './demo-credentials'
-
-export { DEMO_EMAIL, DEMO_PASSWORD }
+import { DEMO_DOMAIN, DEMO_TTL_MS } from './demo-credentials'
 
 const OPPONENTS = ['Northview', 'Lakeside', 'Riverton', 'Summit', 'Harbor City', 'Fairmont', 'Ironwood', 'Eastgate']
 const GAME_COUNT = 24
@@ -65,31 +62,32 @@ export function buildDemoGames(now: Date = new Date()) {
   return games
 }
 
-// Ensure the demo user exists and replace its games with fresh seed data.
-export async function resetDemoData(prisma: PrismaClient) {
-  const user =
-    (await prisma.user.findUnique({ where: { email: DEMO_EMAIL } })) ??
-    (await prisma.user.create({
+// Every demo click gets its own user and sample season, so visitors never touch each other's data.
+// Demo users older than DEMO_TTL_MS are deleted here (games and check-ins cascade), so no cron is needed.
+export async function createDemoUser(prisma: PrismaClient) {
+  const userId = randomUUID()
+  // createMany keeps this to a few round trips instead of one per game (login stays fast).
+  const seeded = buildDemoGames().map((g) => ({ id: randomUUID(), ...g }))
+  const [, user] = await prisma.$transaction([
+    prisma.user.deleteMany({
+      where: { email: { endsWith: DEMO_DOMAIN }, createdAt: { lt: new Date(Date.now() - DEMO_TTL_MS) } },
+    }),
+    prisma.user.create({
       data: {
-        email: DEMO_EMAIL,
-        password: await hash(DEMO_PASSWORD, 10),
+        id: userId,
+        email: `demo-${userId}${DEMO_DOMAIN}`,
+        password: '!', // not a valid bcrypt hash, so this user can never sign in with a password
         name: 'Demo Player',
         team: 'Demo Hockey Club',
         position: 'Center',
       },
-    }))
-
-  // createMany keeps this to a few round trips instead of one per game (login stays fast).
-  const seeded = buildDemoGames().map((g) => ({ id: randomUUID(), ...g }))
-  await prisma.$transaction([
-    prisma.game.deleteMany({ where: { userId: user.id } }),
+    }),
     prisma.game.createMany({
-      data: seeded.map(({ mentalState, ...game }) => ({ ...game, userId: user.id })),
+      data: seeded.map(({ mentalState, ...game }) => ({ ...game, userId })),
     }),
     prisma.mentalState.createMany({
       data: seeded.flatMap((g) => (g.mentalState ? [{ ...g.mentalState, gameId: g.id }] : [])),
     }),
   ])
-
   return user
 }

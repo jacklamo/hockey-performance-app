@@ -3,7 +3,7 @@
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { signOut, useSession } from 'next-auth/react';
-import { DEMO_EMAIL } from '@/src/lib/demo-credentials';
+import { isDemoUser } from '@/src/lib/demo-credentials';
 
 interface HeaderProps {
   title: string;
@@ -27,14 +27,14 @@ export default function Header({ title, width = 'wide' }: HeaderProps) {
   const box = TITLE_BOX[width];
   const { data: session } = useSession();
   const pathname = usePathname();
-  const isDemo = session?.user?.email === DEMO_EMAIL;
+  const isDemo = isDemoUser(session?.user?.email);
 
   return (
     <>
       <header className="bg-(--dasher) text-(--dasher-fg) rounded-b-xl">
         {isDemo && (
           <p className="bg-amber-100 text-amber-600 px-4 py-1.5 text-center text-xs font-medium">
-            You&apos;re in the demo account. Explore freely: the data resets on the next demo login.
+            This is your own private demo. Change anything you like; it&apos;s deleted after 24 hours.
           </p>
         )}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center gap-x-6 gap-y-2">

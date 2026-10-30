@@ -2,7 +2,8 @@ import NextAuth, { NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import { compare } from 'bcryptjs'
 import { prisma } from '@/src/lib/prisma'
-import { DEMO_EMAIL, DEMO_PASSWORD, resetDemoData } from '@/src/lib/demo'
+import { createDemoUser } from '@/src/lib/demo'
+import { DEMO_EMAIL, DEMO_PASSWORD, DEMO_DOMAIN, DEMO_TTL_MS, isDemoUser } from '@/src/lib/demo-credentials'
 
 // This is your NextAuth configuration
 export const authOptions: NextAuthOptions = {
@@ -32,9 +33,10 @@ export const authOptions: NextAuthOptions = {
         }
         if (credentials.email === DEMO_EMAIL) {
           if (credentials.password !== DEMO_PASSWORD) return null
-          const demo = await resetDemoData(prisma)
+          const demo = await createDemoUser(prisma)
           return { id: demo.id, email: demo.email, name: demo.name }
         }
+        if (credentials.email.endsWith(DEMO_DOMAIN)) return null
         const user = await prisma.user.findUnique({
           where: { email: credentials.email },
         })
@@ -60,12 +62,17 @@ export const authOptions: NextAuthOptions = {
     async jwt({ token, user }) {
       if (user) {
         token.id = user.id
+        // Demo data is deleted after DEMO_TTL_MS, so the session stops working then too.
+        if (isDemoUser(user.email)) token.demoExpiresAt = Date.now() + DEMO_TTL_MS
       }
       return token
     },
     
     // Add user id to session object
     async session({ session, token }) {
+      if (token.demoExpiresAt && Date.now() > token.demoExpiresAt) {
+        return { expires: session.expires } as typeof session
+      }
       if (session.user) {
         session.user.id = token.id as string
       }
