@@ -82,3 +82,31 @@ describe('checkRateLimit', () => {
     expect(result.retryAfter!).toBeLessThanOrEqual(Math.ceil(WINDOW_MS / 1000))
   })
 })
+
+import { classifyAuthRequest, checkRateLimit as check, DEMO_LIMIT, DEMO_WINDOW_MS } from '@/src/lib/rate-limit'
+
+describe('classifyAuthRequest', () => {
+  test('NextAuth internal routes are never throttled', () => {
+    for (const path of ['/api/auth/session', '/api/auth/csrf', '/api/auth/providers', '/api/auth/_log', '/api/auth/signout']) {
+      expect(classifyAuthRequest('GET', path, false)).toBeNull()
+      expect(classifyAuthRequest('POST', path, false)).toBeNull()
+    }
+  })
+
+  test('only credential POSTs and signup are throttled, demo gets its own bucket', () => {
+    expect(classifyAuthRequest('POST', '/api/auth/callback/credentials', false)).toBe('credentials')
+    expect(classifyAuthRequest('POST', '/api/auth/callback/credentials', true)).toBe('demo')
+    expect(classifyAuthRequest('POST', '/api/auth/signup', false)).toBe('signup')
+    expect(classifyAuthRequest('GET', '/api/auth/callback/credentials', false)).toBeNull()
+  })
+})
+
+describe('checkRateLimit with a custom limit', () => {
+  test('demo bucket allows a burst of clicks and resets after a minute', () => {
+    const map = new Map<string, RateLimitEntry>()
+    for (let i = 0; i < DEMO_LIMIT; i++) expect(check('1.1.1.1', map, 0, DEMO_LIMIT, DEMO_WINDOW_MS).allowed).toBe(true)
+    expect(check('1.1.1.1', map, 0, DEMO_LIMIT, DEMO_WINDOW_MS).allowed).toBe(false)
+    expect(check('2.2.2.2', map, 0, DEMO_LIMIT, DEMO_WINDOW_MS).allowed).toBe(true)
+    expect(check('1.1.1.1', map, DEMO_WINDOW_MS + 1, DEMO_LIMIT, DEMO_WINDOW_MS).allowed).toBe(true)
+  })
+})

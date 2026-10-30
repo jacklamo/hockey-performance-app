@@ -16,7 +16,7 @@ export default function DemoButton({ className }: { className: string }) {
     setError('');
     const result = await signIn('credentials', { email: DEMO_EMAIL, password: DEMO_PASSWORD, redirect: false });
     if (result?.error) {
-      setError('Could not start the demo. Please try again.');
+      setError(result.status === 429 ? 'The demo is busy. Please try again in a minute.' : 'Could not start the demo. Please try again.');
       setIsLoading(false);
       return;
     }

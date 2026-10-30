@@ -37,7 +37,9 @@ export default function LoginPage() {
         redirect: false,
       });
 
-      if (result?.error) {
+      if (result?.status === 429) {
+        setError('Too many attempts. Please wait a few minutes and try again.');
+      } else if (result?.error) {
         setError('Invalid email or password');
       } else {
         // Redirect to dashboard on success
