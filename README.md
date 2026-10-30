@@ -18,13 +18,9 @@ A full-stack web app that helps hockey players see how **sleep, confidence, stre
 
 ![Points per game, and points by confidence and sleep](docs/screenshots/charts.png)
 
-<!-- SCREENSHOT 2 (log a game): the add-game form, ideally after a PDF import.
-     Save as docs/screenshots/add-game.png, then uncomment:
-![Add game](docs/screenshots/add-game.png) -->
+![Add a game](docs/screenshots/add-game.png)
 
-<!-- SCREENSHOT 3 (check-in): the 1–10 tap-button check-in form on a phone-width window.
-     Save as docs/screenshots/check-in.png, then uncomment:
-![Check-in](docs/screenshots/check-in.png) -->
+![Game check-in with 1–10 tap buttons](docs/screenshots/check-in.png)
 
 ## Tech stack
 
