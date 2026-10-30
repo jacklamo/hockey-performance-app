@@ -16,6 +16,7 @@ import {
   Legend,
 } from 'recharts';
 import { buildLineChartData, buildBarChartData } from '@/src/lib/chart-utils';
+import { computeInsights } from '@/src/lib/insights';
 import Header from '@/app/components/Header';
 import CheckInPrompt from '@/app/components/CheckInPrompt';
 import { AlertCircle } from 'lucide-react';
@@ -97,28 +98,7 @@ export default function DashboardPage() {
     ? gamesWithMentalState.reduce((sum, game) => sum + (game.mentalState?.sleepHours || 0), 0) / gamesWithMentalState.length
     : 0;
 
-  // Calculate insights
-  const highConfidenceGames = gamesWithMentalState.filter(g => (g.mentalState?.confidence || 0) >= 8);
-  const lowConfidenceGames = gamesWithMentalState.filter(g => (g.mentalState?.confidence || 0) <= 5);
-
-  const avgPointsHighConfidence = highConfidenceGames.length > 0
-    ? highConfidenceGames.reduce((sum, game) => sum + game.goals + game.assists, 0) / highConfidenceGames.length
-    : 0;
-
-  const avgPointsLowConfidence = lowConfidenceGames.length > 0
-    ? lowConfidenceGames.reduce((sum, game) => sum + game.goals + game.assists, 0) / lowConfidenceGames.length
-    : 0;
-
-  const highSleepGames = gamesWithMentalState.filter(g => (g.mentalState?.sleepHours || 0) >= 8);
-  const lowSleepGames = gamesWithMentalState.filter(g => (g.mentalState?.sleepHours || 0) < 7);
-
-  const avgPointsHighSleep = highSleepGames.length > 0
-    ? highSleepGames.reduce((sum, game) => sum + game.goals + game.assists, 0) / highSleepGames.length
-    : 0;
-
-  const avgPointsLowSleep = lowSleepGames.length > 0
-    ? lowSleepGames.reduce((sum, game) => sum + game.goals + game.assists, 0) / lowSleepGames.length
-    : 0;
+  const { needed: checkInsNeeded, insights } = computeInsights(games);
 
   const recentGames = games.slice(0, 5);
   const lineChartData = buildLineChartData(games);
@@ -128,9 +108,6 @@ export default function DashboardPage() {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header title="Performance Dashboard" />
-      {!isLoading && gamesMissingCheckIn.length > 0 && (
-        <CheckInPrompt missingCount={gamesMissingCheckIn.length} latestGameId={gamesMissingCheckIn[0].id} />
-      )}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             {[...Array(4)].map((_, i) => (
@@ -158,6 +135,9 @@ export default function DashboardPage() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header title="Performance Dashboard" />
+      {gamesMissingCheckIn.length > 0 && (
+        <CheckInPrompt missingCount={gamesMissingCheckIn.length} latestGameId={gamesMissingCheckIn[0].id} />
+      )}
 
       {/* Main Content */}
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -197,6 +177,49 @@ export default function DashboardPage() {
               </Link>
             )}
 
+            {/* Insights — front and centre */}
+            <div className="mb-8">
+              <h2 className="text-xl font-bold text-gray-900 mb-4">What your data is saying</h2>
+              {checkInsNeeded > 0 ? (
+                <div className="bg-blue-50 rounded-lg border border-blue-200 p-6">
+                  <p className="text-lg font-semibold text-blue-900 mb-1">
+                    {checkInsNeeded} more {checkInsNeeded === 1 ? 'check-in' : 'check-ins'} and your insights unlock
+                  </p>
+                  <p className="text-blue-800">
+                    Once you&apos;ve logged a few games with check-ins, we&apos;ll show you how sleep and confidence line up with your scoring.
+                  </p>
+                </div>
+              ) : insights.length === 0 ? (
+                <div className="bg-blue-50 rounded-lg border border-blue-200 p-6">
+                  <p className="text-blue-800">
+                    Keep logging. To compare, we need at least a few games at both ends, like nights you felt confident and nights you didn&apos;t, or well-rested and short on sleep.
+                  </p>
+                </div>
+              ) : (
+                <>
+                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                    {insights.map((insight) => (
+                      <div key={insight.id} className="bg-white rounded-lg border border-blue-200 border-l-4 border-l-blue-600 shadow-sm p-6">
+                        <div className="flex items-center justify-between mb-3">
+                          <h3 className="text-sm font-semibold uppercase tracking-wide text-blue-700">{insight.title}</h3>
+                          <span className="text-xs font-medium text-gray-600 bg-gray-100 rounded-full px-2.5 py-1">
+                            {insight.trust === 'early' ? 'Early signal' : insight.trust === 'flat' ? 'No clear pattern' : 'Worth watching'}
+                          </span>
+                        </div>
+                        <p className="text-lg text-gray-900 leading-snug">{insight.headline}</p>
+                      </div>
+                    ))}
+                  </div>
+                  <Link
+                    href="/insights"
+                    className="inline-flex items-center gap-1 mt-4 font-semibold text-blue-600 hover:text-blue-800 transition-colors"
+                  >
+                    See how we worked this out and what it could mean →
+                  </Link>
+                </>
+              )}
+            </div>
+
             {/* Top Section - Summary Cards Grid */}
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
               {/* Card 1: Games Played */}
@@ -229,37 +252,6 @@ export default function DashboardPage() {
                 <p className="text-xs text-gray-400 mt-1">hours</p>
               </div>
             </div>
-
-            {/* Middle Section - Performance Insights */}
-            {gamesWithMentalState.length >= 5 && (
-              <div className="mb-8">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">Performance Insights</h2>
-                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
-                  {highConfidenceGames.length > 0 && lowConfidenceGames.length > 0 && (
-                    <div className="bg-blue-50 rounded-lg border border-blue-200 p-6">
-                      <h3 className="text-base font-semibold text-blue-900 mb-2">
-                        High Confidence Impact
-                      </h3>
-                      <p className="text-sm text-blue-800">
-                        You average {avgPointsHighConfidence.toFixed(1)} points per game when confidence is 8+
-                        vs {avgPointsLowConfidence.toFixed(1)} points when confidence is 5 or below
-                      </p>
-                    </div>
-                  )}
-                  {highSleepGames.length > 0 && lowSleepGames.length > 0 && (
-                    <div className="bg-blue-50 rounded-lg border border-blue-200 p-6">
-                      <h3 className="text-base font-semibold text-blue-900 mb-2">
-                        Sleep Impact
-                      </h3>
-                      <p className="text-sm text-blue-800">
-                        You average {avgPointsHighSleep.toFixed(1)} points per game with 8+ hours sleep
-                        vs {avgPointsLowSleep.toFixed(1)} points with less than 7 hours
-                      </p>
-                    </div>
-                  )}
-                </div>
-              </div>
-            )}
 
             {/* Performance Trends Section */}
             {lineChartData.length > 0 && (

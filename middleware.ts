@@ -27,7 +27,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // Auth protection for dashboard and games routes
-  if (pathname.startsWith('/dashboard') || pathname.startsWith('/games')) {
+  if (pathname.startsWith('/dashboard') || pathname.startsWith('/games') || pathname.startsWith('/insights')) {
     const token = await getToken({ req: request })
     if (!token) {
       const loginUrl = new URL('/auth/login', request.url)
@@ -41,5 +41,5 @@ export async function middleware(request: NextRequest) {
 export { middleware as default }
 
 export const config = {
-  matcher: ['/api/auth/:path*', '/dashboard/:path*', '/games/:path*'],
+  matcher: ['/api/auth/:path*', '/dashboard/:path*', '/games/:path*', '/insights/:path*'],
 }

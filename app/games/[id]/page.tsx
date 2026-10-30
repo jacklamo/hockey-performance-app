@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import Header from '@/app/components/Header';
+import GameInsights from '@/app/components/GameInsights';
 
 interface MentalState {
   confidence: number;
@@ -314,6 +315,8 @@ export default function GameDetailPage({ params }: { params: Promise<{ id: strin
             </>
           )}
         </div>
+
+        <GameInsights gameId={game.id} hasCheckIn={hasMentalState} />
 
         {deleteError && (
           <p role="alert" className="mb-3 text-sm font-medium text-red-600">{deleteError}</p>
