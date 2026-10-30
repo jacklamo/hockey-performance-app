@@ -1,10 +1,23 @@
 'use client';
 
-import { useEffect, useState } from 'react';
+import { useEffect, useSyncExternalStore } from 'react';
 import Link from 'next/link';
 import { ClipboardCheck } from 'lucide-react';
 
 const DISMISSED_KEY = 'checkin-prompt-dismissed';
+const DISMISS_EVENT = 'checkin-prompt-dismissed';
+
+const subscribe = (cb: () => void) => {
+  window.addEventListener(DISMISS_EVENT, cb);
+  return () => window.removeEventListener(DISMISS_EVENT, cb);
+};
+const isDismissed = () => {
+  try {
+    return sessionStorage.getItem(DISMISSED_KEY) === '1';
+  } catch {
+    return false;
+  }
+};
 
 interface CheckInPromptProps {
   missingCount: number;
@@ -14,26 +27,26 @@ interface CheckInPromptProps {
 // Modal shown once per browser session while check-ins are missing.
 // The dashboard also keeps a persistent banner, so dismissing is never the end of the nudge.
 export default function CheckInPrompt({ missingCount, latestGameId }: CheckInPromptProps) {
-  const [open, setOpen] = useState(false);
-
-  useEffect(() => {
-    try {
-      if (missingCount > 0 && !sessionStorage.getItem(DISMISSED_KEY)) setOpen(true);
-    } catch {
-      setOpen(missingCount > 0);
-    }
-  }, [missingCount]);
+  // Server snapshot is "dismissed" so nothing renders until the client has read sessionStorage.
+  const dismissed = useSyncExternalStore(subscribe, isDismissed, () => true);
+  const open = missingCount > 0 && !dismissed;
 
   const dismiss = () => {
     try {
       sessionStorage.setItem(DISMISSED_KEY, '1');
     } catch {}
-    setOpen(false);
+    window.dispatchEvent(new Event(DISMISS_EVENT));
   };
 
   useEffect(() => {
     if (!open) return;
-    const onKey = (e: KeyboardEvent) => e.key === 'Escape' && dismiss();
+    const onKey = (e: KeyboardEvent) => {
+      if (e.key !== 'Escape') return;
+      try {
+        sessionStorage.setItem(DISMISSED_KEY, '1');
+      } catch {}
+      window.dispatchEvent(new Event(DISMISS_EVENT));
+    };
     window.addEventListener('keydown', onKey);
     return () => window.removeEventListener('keydown', onKey);
   }, [open]);
@@ -49,13 +62,13 @@ export default function CheckInPrompt({ missingCount, latestGameId }: CheckInPro
         role="dialog"
         aria-modal="true"
         aria-labelledby="checkin-prompt-title"
-        className="w-full max-w-md rounded-xl bg-white p-6 shadow-2xl"
+        className="w-full max-w-md rounded-2xl bg-white p-6 shadow-2xl"
         onClick={(e) => e.stopPropagation()}
       >
         <div className="mb-4 inline-flex h-12 w-12 items-center justify-center rounded-full bg-amber-100">
           <ClipboardCheck className="h-6 w-6 text-amber-600" />
         </div>
-        <h2 id="checkin-prompt-title" className="mb-2 text-xl font-bold text-gray-900">
+        <h2 id="checkin-prompt-title" className="mb-2 text-2xl font-bold text-gray-900">
           {missingCount === 1 ? 'You have a game without a check-in' : `${missingCount} games are missing check-ins`}
         </h2>
         <p className="mb-6 text-gray-600">
@@ -65,7 +78,7 @@ export default function CheckInPrompt({ missingCount, latestGameId }: CheckInPro
         <div className="flex flex-col-reverse gap-3 sm:flex-row">
           <button
             onClick={dismiss}
-            className="flex-1 rounded-lg border-2 border-gray-300 px-4 py-3 font-semibold text-gray-700 transition-colors hover:bg-gray-50"
+            className="flex-1 rounded-lg border-2 border-gray-200 px-4 py-3 font-semibold text-gray-700 transition-colors hover:bg-gray-50"
           >
             Remind me later
           </button>

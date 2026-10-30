@@ -13,12 +13,14 @@ import {
   YAxis,
   CartesianGrid,
   Tooltip,
-  Legend,
+  ReferenceLine,
+  LabelList,
 } from 'recharts';
-import { buildLineChartData, buildBarChartData } from '@/src/lib/chart-utils';
+import { buildLineChartData, buildConfidenceGroups, buildSleepGroups, GroupBar } from '@/src/lib/chart-utils';
 import { computeInsights } from '@/src/lib/insights';
 import Header from '@/app/components/Header';
 import CheckInPrompt from '@/app/components/CheckInPrompt';
+import RinkChart from '@/app/components/RinkChart';
 import { AlertCircle } from 'lucide-react';
 
 interface MentalState {
@@ -47,11 +49,35 @@ interface Game {
 const gameTooltipLabel = (game: unknown, payload: readonly { payload?: { date?: string } }[]) =>
   `Game #${game} · ${payload?.[0]?.payload?.date ?? ''}`;
 
+function GroupTick({ x = 0, y = 0, payload, groups }: { x?: number; y?: number; payload?: { value: string }; groups: GroupBar[] }) {
+  const group = groups.find((g) => g.name === payload?.value);
+  return (
+    <g transform={`translate(${x},${y})`}>
+      <text y={20} textAnchor="middle" fontSize={15} fontWeight={600} fill="var(--color-gray-900)">{payload?.value}</text>
+      <text y={38} textAnchor="middle" fontSize={13} fill="var(--color-gray-500)">{group?.games ?? 0} games</text>
+    </g>
+  );
+}
+
+const CHART_VIEW_KEY = 'dashboard-chart-view';
+
 export default function DashboardPage() {
   const router = useRouter();
   const [games, setGames] = useState<Game[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
+  const [chartView, setChartView] = useState<'charts' | 'rink'>('charts');
+  useEffect(() => {
+    try {
+      if (localStorage.getItem(CHART_VIEW_KEY) === 'rink') setChartView('rink');
+    } catch {}
+  }, []);
+  const changeChartView = (v: 'charts' | 'rink') => {
+    setChartView(v);
+    try {
+      localStorage.setItem(CHART_VIEW_KEY, v);
+    } catch {}
+  };
   const fetchGames = useCallback(async () => {
     setIsLoading(true);
     setError('');
@@ -102,7 +128,13 @@ export default function DashboardPage() {
 
   const recentGames = games.slice(0, 5);
   const lineChartData = buildLineChartData(games);
-  const barChartData = buildBarChartData(games);
+  const confGroups = buildConfidenceGroups(games);
+  const sleepGroups = buildSleepGroups(games);
+  const rinkPoints = gamesWithMentalState.map((g) => ({
+    confidence: g.mentalState!.confidence,
+    points: g.goals + g.assists,
+    label: `${new Date(g.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' })} vs ${g.opponent}: confidence ${g.mentalState!.confidence}, ${g.goals + g.assists} points`,
+  }));
 
   if (isLoading) {
     return (
@@ -166,23 +198,48 @@ export default function DashboardPage() {
         ) : (
           <>
             {gamesMissingCheckIn.length > 0 && (
-              <Link
-                href={`/games/${gamesMissingCheckIn[0].id}/mental`}
-                className="flex items-center justify-between gap-4 mb-6 p-4 bg-amber-50 border-2 border-amber-300 rounded-lg text-amber-900 hover:bg-amber-100 transition-colors"
-              >
-                <span className="font-semibold">
-                  {gamesMissingCheckIn.length} {gamesMissingCheckIn.length === 1 ? 'game is' : 'games are'} missing a check-in
-                </span>
-                <span className="shrink-0 rounded-lg bg-amber-500 px-3 py-1.5 text-sm font-bold text-white">Log check-in →</span>
-              </Link>
+              <div className="mb-8 flex flex-wrap items-center justify-between gap-x-6 gap-y-3 rounded-xl bg-amber-400 px-5 py-4 text-[#1b1406]">
+                <p>
+                  <strong className="font-semibold">
+                    {gamesMissingCheckIn.length === 1
+                      ? 'One game is waiting on a check-in.'
+                      : `${gamesMissingCheckIn.length} games are waiting on check-ins.`}
+                  </strong>{' '}
+                  Log how you felt going into {gamesMissingCheckIn[0].opponent} while you still remember.
+                </p>
+                <Link
+                  href={`/games/${gamesMissingCheckIn[0].id}/mental`}
+                  className="rounded-lg bg-[#1b1406] px-4 py-2 font-semibold text-amber-400"
+                >
+                  Log check-in
+                </Link>
+              </div>
             )}
 
+            {/* Scoreboard */}
+            <div className="mb-12 grid grid-cols-2 lg:grid-cols-4 overflow-hidden rounded-xl bg-(--dasher) text-(--dasher-fg)">
+              {[
+                [String(totalGames), 'Games played'],
+                [avgPoints.toFixed(1), 'Points a game'],
+                [gamesWithMentalState.length > 0 ? avgConfidence.toFixed(1) : '-', 'Average confidence'],
+                [gamesWithMentalState.length > 0 ? `${avgSleep.toFixed(1)} h` : '-', 'Average sleep'],
+              ].map(([value, label], i) => (
+                <div
+                  key={label}
+                  className={`border-white/15 px-5 py-4 ${i % 2 === 1 ? 'border-l' : ''} ${i > 1 ? 'border-t' : ''} lg:border-t-0 ${i > 0 ? 'lg:border-l' : ''}`}
+                >
+                  <b className="block font-serif text-4xl font-bold leading-tight text-[#f4b63a] tabular-nums">{value}</b>
+                  <span className="text-[15px] opacity-85">{label}</span>
+                </div>
+              ))}
+            </div>
+
             {/* Insights — front and centre */}
-            <div className="mb-8">
-              <h2 className="text-xl font-bold text-gray-900 mb-4">What your data is saying</h2>
+            <div className="mb-12">
+              <h2 className="mb-5 text-3xl font-bold text-gray-900">What your data is saying</h2>
               {checkInsNeeded > 0 ? (
-                <div className="bg-blue-50 rounded-lg border border-blue-200 p-6">
-                  <p className="text-lg font-semibold text-blue-900 mb-1">
+                <div className="rounded-xl border border-blue-200 bg-blue-50 p-6">
+                  <p className="mb-1 text-lg font-semibold text-blue-900">
                     {checkInsNeeded} more {checkInsNeeded === 1 ? 'check-in' : 'check-ins'} and your insights unlock
                   </p>
                   <p className="text-blue-800">
@@ -190,132 +247,114 @@ export default function DashboardPage() {
                   </p>
                 </div>
               ) : insights.length === 0 ? (
-                <div className="bg-blue-50 rounded-lg border border-blue-200 p-6">
+                <div className="rounded-xl border border-blue-200 bg-blue-50 p-6">
                   <p className="text-blue-800">
                     Keep logging. To compare, we need at least a few games at both ends, like nights you felt confident and nights you didn&apos;t, or well-rested and short on sleep.
                   </p>
                 </div>
               ) : (
                 <>
-                  <div className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                  <div className="mb-6 grid grid-cols-1 gap-x-12 gap-y-8 lg:grid-cols-2">
                     {insights.map((insight) => (
-                      <div key={insight.id} className="bg-white rounded-lg border border-blue-200 border-l-4 border-l-blue-600 shadow-sm p-6">
-                        <div className="flex items-center justify-between mb-3">
-                          <h3 className="text-sm font-semibold uppercase tracking-wide text-blue-700">{insight.title}</h3>
-                          <span className="text-xs font-medium text-gray-600 bg-gray-100 rounded-full px-2.5 py-1">
-                            {insight.trust === 'early' ? 'Early signal' : insight.trust === 'flat' ? 'No clear pattern' : 'Worth watching'}
-                          </span>
-                        </div>
-                        <p className="text-lg text-gray-900 leading-snug">{insight.headline}</p>
+                      <div key={insight.id}>
+                        <span className="inline-block rounded-full border border-gray-200 px-3 py-0.5 text-[13px] font-medium text-gray-600">
+                          {insight.trust === 'early' ? 'Early signal' : insight.trust === 'flat' ? 'No clear pattern' : 'Worth watching'}
+                        </span>
+                        <p className="mt-2.5 max-w-[34ch] font-serif text-[23px] leading-[1.38] text-gray-900">{insight.headline}</p>
                       </div>
                     ))}
                   </div>
-                  <Link
-                    href="/insights"
-                    className="inline-flex items-center gap-1 mt-4 font-semibold text-blue-600 hover:text-blue-800 transition-colors"
-                  >
-                    See how we worked this out and what it could mean →
+                  <Link href="/insights" className="font-semibold text-gray-900 underline underline-offset-4">
+                    See how we worked this out and what it could mean
                   </Link>
                 </>
               )}
             </div>
 
-            {/* Top Section - Summary Cards Grid */}
-            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
-              {/* Card 1: Games Played */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h3 className="text-sm font-medium text-gray-500 mb-2">Games Played</h3>
-                <p className="text-4xl font-bold text-blue-600">{totalGames}</p>
+            {/* The numbers */}
+            <div className="mb-12">
+              <div className="mb-5 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-3">
+                <h2 className="text-3xl font-bold text-gray-900">The numbers</h2>
+                <div role="group" aria-label="Chart style" className="inline-flex overflow-hidden rounded-full border-[1.5px] border-gray-900">
+                  {(['charts', 'rink'] as const).map((v, i) => (
+                    <button
+                      key={v}
+                      onClick={() => changeChartView(v)}
+                      aria-pressed={chartView === v}
+                      className={`px-[18px] py-1.5 text-[15px] font-semibold ${i > 0 ? 'border-l-[1.5px] border-gray-900' : ''} ${
+                        chartView === v ? 'bg-gray-900 text-white' : ''
+                      }`}
+                    >
+                      {v === 'charts' ? 'Charts' : 'Rink'}
+                    </button>
+                  ))}
+                </div>
               </div>
 
-              {/* Card 2: Avg Points */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h3 className="text-sm font-medium text-gray-500 mb-2">Avg Points</h3>
-                <p className="text-4xl font-bold text-blue-600">{avgPoints.toFixed(1)}</p>
-              </div>
-
-              {/* Card 3: Avg Confidence */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h3 className="text-sm font-medium text-gray-500 mb-2">Avg Confidence</h3>
-                <p className="text-4xl font-bold text-blue-600">
-                  {gamesWithMentalState.length > 0 ? avgConfidence.toFixed(1) : '-'}
-                </p>
-                <p className="text-xs text-gray-400 mt-1">out of 10</p>
-              </div>
-
-              {/* Card 4: Avg Sleep */}
-              <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                <h3 className="text-sm font-medium text-gray-500 mb-2">Avg Sleep</h3>
-                <p className="text-4xl font-bold text-blue-600">
-                  {gamesWithMentalState.length > 0 ? avgSleep.toFixed(1) : '-'}
-                </p>
-                <p className="text-xs text-gray-400 mt-1">hours</p>
-              </div>
-            </div>
-
-            {/* Performance Trends Section */}
-            {lineChartData.length > 0 && (
-              <div className="mb-8">
-                <h2 className="text-xl font-bold text-gray-900 mb-4">Performance Trends</h2>
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-
-                  {/* Line Chart - Points Over Time */}
-                  <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                    <h3 className="text-sm font-medium text-gray-500 mb-4">Points Per Game</h3>
-                    <div className="h-64">
+              {chartView === 'rink' ? (
+                <figure className="m-0">
+                  <RinkChart points={rinkPoints} zones={confGroups} />
+                  <figcaption className="mt-3 max-w-[70ch] text-gray-500">
+                    Each puck is one game with a check-in. The further right, the more confident you felt going in. The higher up, the more points you scored.
+                  </figcaption>
+                </figure>
+              ) : (
+                <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
+                  <figure className="m-0 rounded-xl border border-gray-200 bg-white p-5 lg:col-span-2">
+                    <h3 className="text-2xl font-bold text-gray-900">Points in each game</h3>
+                    <p className="mb-4 mt-1 max-w-[64ch] text-[15px] text-gray-500">
+                      Goals plus assists for your last {lineChartData.length} games. The dashed line is your season average.
+                    </p>
+                    <div className="h-72">
                       <ResponsiveContainer width="100%" height="100%">
-                        <LineChart data={lineChartData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
-                          <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                          <XAxis dataKey="game" tickFormatter={(g) => `#${g}`} tick={{ fontSize: 11 }} interval="preserveStartEnd" />
-                          <YAxis allowDecimals={false} tick={{ fontSize: 11 }} />
+                        <LineChart data={lineChartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                          <CartesianGrid stroke="var(--color-gray-200)" vertical={false} />
+                          <XAxis dataKey="game" tickFormatter={(g) => `#${g}`} tick={{ fontSize: 13, fill: 'var(--color-gray-500)' }} stroke="var(--color-gray-900)" interval="preserveStartEnd" />
+                          <YAxis allowDecimals={false} domain={[0, (max: number) => Math.max(4, Math.ceil(max))]} tick={{ fontSize: 13, fill: 'var(--color-gray-500)' }} stroke="var(--color-gray-900)" />
                           <Tooltip labelFormatter={gameTooltipLabel} />
-                          <Line
-                            type="monotone"
-                            dataKey="points"
-                            stroke="#2563eb"
-                            strokeWidth={2}
-                            dot={{ r: 4, fill: '#2563eb' }}
-                            activeDot={{ r: 6 }}
+                          <ReferenceLine
+                            y={avgPoints}
+                            stroke="var(--color-gray-500)"
+                            strokeDasharray="5 5"
+                            label={{ value: `Season average ${avgPoints.toFixed(1)}`, position: 'insideTopRight', fill: 'var(--color-gray-500)', fontSize: 13 }}
                           />
+                          <Line type="monotone" dataKey="points" stroke="var(--color-blue-600)" strokeWidth={2.5} dot={{ r: 4.5, fill: 'var(--color-blue-600)' }} activeDot={{ r: 6 }} />
                         </LineChart>
                       </ResponsiveContainer>
                     </div>
-                  </div>
+                  </figure>
 
-                  {/* Bar Chart - Confidence + Sleep, or Placeholder */}
-                  {gamesWithMentalState.length >= 5 ? (
-                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
-                      <h3 className="text-sm font-medium text-gray-500 mb-4">Mental State Per Game</h3>
-                      <div className="h-64">
+                  {[
+                    { title: 'Points by how confident you felt', groups: confGroups },
+                    { title: 'Points by how much you slept', groups: sleepGroups },
+                  ].map(({ title, groups }) => (
+                    <figure key={title} className="m-0 rounded-xl border border-gray-200 bg-white p-5">
+                      <h3 className="text-2xl font-bold text-gray-900">{title}</h3>
+                      <p className="mb-4 mt-1 max-w-[64ch] text-[15px] text-gray-500">
+                        Average points per game. The number under each label is how many games it covers.
+                      </p>
+                      <div className="h-72">
                         <ResponsiveContainer width="100%" height="100%">
-                          <BarChart data={barChartData} margin={{ top: 5, right: 10, left: -20, bottom: 5 }}>
-                            <CartesianGrid strokeDasharray="3 3" vertical={false} />
-                            <XAxis dataKey="game" tickFormatter={(g) => `#${g}`} tick={{ fontSize: 11 }} interval="preserveStartEnd" />
-                            <YAxis domain={[0, 10]} tick={{ fontSize: 11 }} />
-                            <Tooltip labelFormatter={gameTooltipLabel} />
-                            <Legend />
-                            <Bar dataKey="confidence" name="Confidence" fill="#2563eb" radius={[2, 2, 0, 0]} />
-                            <Bar dataKey="sleep" name="Sleep (normalized)" fill="#4f46e5" radius={[2, 2, 0, 0]} />
+                          <BarChart data={groups} margin={{ top: 22, right: 6, left: -20, bottom: 0 }}>
+                            <CartesianGrid stroke="var(--color-gray-200)" vertical={false} />
+                            <XAxis dataKey="name" tick={<GroupTick groups={groups} />} height={50} stroke="var(--color-gray-900)" interval={0} />
+                            <YAxis allowDecimals={false} domain={[0, (max: number) => Math.max(4, Math.ceil(max))]} tick={{ fontSize: 13, fill: 'var(--color-gray-500)' }} stroke="var(--color-gray-900)" />
+                            <Bar dataKey="avgPoints" fill="var(--color-blue-600)" radius={[8, 8, 0, 0]} maxBarSize={88}>
+                              <LabelList dataKey="avgPoints" position="top" formatter={(v: unknown) => Number(v).toFixed(1)} style={{ fill: 'var(--color-gray-900)', fontWeight: 700, fontSize: 16 }} />
+                            </Bar>
                           </BarChart>
                         </ResponsiveContainer>
                       </div>
-                    </div>
-                  ) : (
-                    <div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6 flex items-center justify-center h-64">
-                      <p className="text-sm text-gray-500 text-center">
-                        Log check-ins for 5 games to unlock this chart
-                      </p>
-                    </div>
-                  )}
-
+                    </figure>
+                  ))}
                 </div>
-              </div>
-            )}
+              )}
+            </div>
 
             {/* Bottom Section - Recent Games Table */}
             <div>
               <div className="flex justify-between items-center mb-4">
-                <h2 className="text-xl font-bold text-gray-900">Recent Games</h2>
+                <h2 className="text-3xl font-bold text-gray-900">Recent games</h2>
                 <Link
                   href="/games/add"
                   className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm font-medium hover:bg-blue-700 transition-colors"

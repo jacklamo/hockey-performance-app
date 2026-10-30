@@ -1,15 +1,16 @@
 import type { Metadata } from "next";
-import { Geist, Geist_Mono } from "next/font/google";
+import { STIX_Two_Text, Figtree } from "next/font/google";
 import "./globals.css";
 import Providers from "./components/Providers";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+const stix = STIX_Two_Text({
+  variable: "--font-stix",
   subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const figtree = Figtree({
+  variable: "--font-figtree",
   subsets: ["latin"],
 });
 
@@ -26,7 +27,7 @@ export default function RootLayout({
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${stix.variable} ${figtree.variable} antialiased`}
       >
         <Providers>{children}</Providers>
       </body>

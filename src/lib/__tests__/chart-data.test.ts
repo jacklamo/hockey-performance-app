@@ -1,4 +1,4 @@
-import { buildLineChartData, buildBarChartData } from '@/src/lib/chart-utils';
+import { buildLineChartData, buildBarChartData, buildConfidenceGroups, buildSleepGroups } from '@/src/lib/chart-utils';
 import type { LineChartPoint, BarChartPoint } from '@/src/lib/chart-utils';
 
 interface MentalState {
@@ -209,5 +209,27 @@ describe('game numbers on chart points', () => {
     ];
     expect(buildLineChartData(games).map((p) => p.game)).toEqual([1, 2, 3]);
     expect(buildBarChartData(games).map((p) => p.game)).toEqual([2, 3]);
+  });
+});
+
+describe('group bars', () => {
+  const ms = (confidence: number, sleepHours: number) => ({ confidence, sleepHours, sleepQuality: 5, stressLevel: 5, physicalEnergy: 5 });
+  const games = [
+    makeGame({ id: 'a', date: '2024-03-01', goals: 2, mentalState: ms(9, 8.5) }),
+    makeGame({ id: 'b', date: '2024-03-02', goals: 0, mentalState: ms(3, 6) }),
+    makeGame({ id: 'c', date: '2024-03-03', goals: 1, mentalState: ms(6, 7) }),
+    makeGame({ id: 'd', date: '2024-03-04', goals: 5 }), // no check-in: ignored
+  ];
+
+  test('confidence groups use the insight cut-offs and ignore games without a check-in', () => {
+    expect(buildConfidenceGroups(games)).toEqual([
+      { name: 'Not feeling it', avgPoints: 0, games: 1 },
+      { name: 'Steady', avgPoints: 1, games: 1 },
+      { name: 'Locked in', avgPoints: 2, games: 1 },
+    ]);
+  });
+
+  test('sleep groups split at 7 and 8 hours', () => {
+    expect(buildSleepGroups(games).map((g) => g.games)).toEqual([1, 1, 1]);
   });
 });

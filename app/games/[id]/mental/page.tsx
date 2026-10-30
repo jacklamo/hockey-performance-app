@@ -17,6 +17,16 @@ export default function MentalStatePage({ params }: { params: Promise<{ id: stri
     params.then(p => setGameId(p.id));
   }, [params]);
 
+  const [opponent, setOpponent] = useState('');
+
+  useEffect(() => {
+    if (!gameId) return;
+    fetch(`/api/games/${gameId}`)
+      .then((r) => (r.ok ? r.json() : null))
+      .then((d) => d?.game && setOpponent(d.game.opponent))
+      .catch(() => {});
+  }, [gameId]);
+
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState('');
   const [formData, setFormData] = useState<{
@@ -91,8 +101,8 @@ export default function MentalStatePage({ params }: { params: Promise<{ id: stri
 
   return (
     <>
-    <Header title="Game Check-In" />
-    <div className="bg-gradient-to-b from-blue-50 to-white py-8 px-4 sm:px-6 lg:px-8">
+    <Header title={opponent ? `How were you feeling going into ${opponent}?` : 'Game check-in'} />
+    <div className="py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-2xl mx-auto">
         {/* Back Button */}
         <Link
@@ -105,7 +115,7 @@ export default function MentalStatePage({ params }: { params: Promise<{ id: stri
 
         {/* Page Heading */}
         <div className="mb-6">
-          <p className="text-gray-600 italic">
+          <p className="text-gray-600">
             Think back to how you felt going into the game. This takes 90 seconds. Answer honestly - this is for you, not your coach.
           </p>
         </div>

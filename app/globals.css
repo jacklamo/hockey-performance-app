@@ -1,28 +1,98 @@
 @import "tailwindcss";
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
+/* Palette: ice, paint blue, rink red. The Tailwind gray/blue scales are redefined so every
+   page picks up the theme (and its dark variant) without per-component changes. */
+@theme {
+  --color-white: #f8fafb;
+  --color-gray-50: #edf1f3;
+  --color-gray-100: #e4eaee;
+  --color-gray-200: #cbd6dd;
+  --color-gray-300: #b7c4cd;
+  --color-gray-400: #8a9aa5;
+  --color-gray-500: #637681;
+  --color-gray-600: #4f606b;
+  --color-gray-700: #364852;
+  --color-gray-800: #1f2e38;
+  --color-gray-900: #121c24;
+  --color-blue-50: #e6eef9;
+  --color-blue-100: #d3e2f6;
+  --color-blue-200: #afc8ee;
+  --color-blue-300: #82a6dd;
+  --color-blue-500: #3a6cbb;
+  --color-blue-600: #1d4f9f;
+  --color-blue-700: #173f80;
+  --color-blue-800: #123268;
+  --color-blue-900: #0e2750;
+  --color-red-600: #b8302b;
+
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 1.125rem;
+  --radius-2xl: 1.5rem;
+
+  --font-sans: var(--font-figtree), system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-serif: var(--font-stix), "Times New Roman", Times, serif;
 }
 
-@theme inline {
-  --color-background: var(--background);
-  --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+:root {
+  --background: #edf1f3;
+  --foreground: #121c24;
+  --dasher: #16212b;
+  --dasher-fg: #e8eef2;
 }
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
+    --color-white: #16222c;
+    --color-gray-50: #0e161d;
+    --color-gray-100: #1c2a35;
+    --color-gray-200: #2d3f4c;
+    --color-gray-300: #3b505f;
+    --color-gray-400: #6f818d;
+    --color-gray-500: #8fa0ab;
+    --color-gray-600: #9dacb7;
+    --color-gray-700: #b6c3cc;
+    --color-gray-800: #d3dce2;
+    --color-gray-900: #e9eff3;
+    --color-blue-50: #14233a;
+    --color-blue-100: #1a2f4d;
+    --color-blue-200: #24406a;
+    --color-blue-300: #35568c;
+    --color-blue-500: #6b9bea;
+    --color-blue-600: #78a5ee;
+    --color-blue-700: #92b7f2;
+    --color-blue-800: #b5cff6;
+    --color-blue-900: #d3e2fa;
+    --color-red-50: #3a1c1f;
+    --color-red-100: #4a2427;
+    --color-red-200: #6b2f33;
+    --color-red-600: #f0706a;
+    --color-red-700: #f58a85;
+    --color-red-800: #f9aaa6;
+    --color-green-50: #14301f;
+    --color-green-100: #1b3f29;
+    --color-green-200: #245a38;
+    --color-green-600: #5fd08a;
+    --color-green-800: #a7e3bc;
+    --color-amber-100: #3a2e10;
+    --color-amber-600: #f4b63a;
+    --background: #0e161d;
+    --foreground: #e9eff3;
+    --dasher: #1a2935;
   }
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: Arial, Helvetica, sans-serif;
+  font-family: var(--font-sans);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1, h2, h3 {
+  font-family: var(--font-serif);
+  letter-spacing: -0.01em;
 }
 
 /* Skeleton shimmer animation — used by all loading.tsx files */
@@ -34,10 +104,24 @@ body {
 .skeleton-shimmer {
   background: linear-gradient(
     90deg,
-    #e5e7eb 25%,
-    #f3f4f6 50%,
-    #e5e7eb 75%
+    var(--color-gray-200) 25%,
+    var(--color-gray-100) 50%,
+    var(--color-gray-200) 75%
   );
   background-size: 200% 100%;
   animation: shimmer 1.5s infinite linear;
+}
+
+/* Rink chart: pucks slide in once when the chart first mounts */
+@keyframes puck-drop {
+  from { transform: translateX(-90px); opacity: 0; }
+}
+
+.puck {
+  animation: puck-drop 0.55s cubic-bezier(0.2, 0.7, 0.2, 1) backwards;
+  animation-delay: calc(var(--i) * 16ms);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .puck { animation: none; }
 }

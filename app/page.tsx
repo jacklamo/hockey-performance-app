@@ -1,104 +1,86 @@
 import Link from 'next/link';
-import { TrendingUp, Brain, Target } from 'lucide-react';
 import DemoButton from '@/app/components/DemoButton';
+import RinkChart from '@/app/components/RinkChart';
+import { buildDemoGames } from '@/src/lib/demo';
+import { buildConfidenceGroups } from '@/src/lib/chart-utils';
+
+const STEPS = [
+  { title: 'Log the game', body: 'Goals, assists, shots and ice time. Or import your Instat PDF and skip the typing.' },
+  { title: 'Rate how you felt', body: 'Four taps and your hours of sleep. It takes about 90 seconds.' },
+  { title: 'Read the pattern', body: 'See how confidence and sleep line up with your scoring, and how we worked it out.' },
+];
 
 export default function Home() {
-  return (
-    <div className="min-h-screen bg-white">
-      {/* Header */}
-      <header className="border-b border-gray-200">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-16">
-            {/* Logo/App Name */}
-            <div className="flex items-center">
-              <h1 className="text-xl font-bold text-gray-900">Hockey Performance Tracker</h1>
-            </div>
+  // The hero chart shows the same sample season the demo account uses.
+  const sample = buildDemoGames().flatMap((g) =>
+    g.mentalState
+      ? [{
+          date: g.date.toISOString(),
+          opponent: g.opponent,
+          goals: g.goals,
+          assists: g.assists,
+          mentalState: { ...g.mentalState, notes: g.mentalState.notes ?? undefined },
+        }]
+      : []
+  );
+  const zones = buildConfidenceGroups(
+    sample.map((g, i) => ({ id: String(i), homeAway: '', result: '', shots: 0, plusMinus: 0, iceTime: 0, ...g }))
+  );
+  const points = sample.map((g) => ({
+    confidence: g.mentalState.confidence,
+    points: g.goals + g.assists,
+    label: `${g.date.slice(0, 10)} vs ${g.opponent}: confidence ${g.mentalState.confidence}, ${g.goals + g.assists} points`,
+  }));
 
-            {/* Navigation Buttons */}
-            <div className="flex items-center gap-3">
-              <Link
-                href="/auth/login"
-                className="px-4 py-2 text-sm font-medium text-gray-700 hover:text-gray-900 transition-colors"
-              >
-                Log In
-              </Link>
-              <Link
-                href="/auth/signup"
-                className="px-4 py-2 text-sm font-medium text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors"
-              >
-                Sign Up
-              </Link>
-            </div>
-          </div>
+  return (
+    <div className="min-h-screen bg-gray-50">
+      <header className="bg-(--dasher) text-(--dasher-fg) rounded-b-xl">
+        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center gap-x-6 gap-y-2">
+          <span className="font-serif font-bold text-xl sm:text-2xl mr-auto">Hockey Performance Tracker</span>
+          <nav className="flex items-center gap-5 text-[15px]" aria-label="Account">
+            <Link href="/auth/login" className="opacity-80 hover:opacity-100">Log in</Link>
+            <Link href="/auth/signup" className="opacity-80 hover:opacity-100">Create account</Link>
+          </nav>
         </div>
       </header>
 
-      {/* Hero Section */}
-      <section className="py-20 px-4 sm:px-6 lg:px-8">
-        <div className="max-w-4xl mx-auto text-center">
-          <h2 className="text-4xl sm:text-5xl font-bold text-gray-900 mb-6">
-            Understand What Makes You Perform
-          </h2>
-          <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto">
-            Track your stats and mental state to discover what impacts your game
-          </p>
-          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
-            <DemoButton className="px-8 py-4 text-lg font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl disabled:opacity-50" />
-            <Link
-              href="/auth/signup"
-              className="inline-block px-8 py-4 text-lg font-semibold text-blue-600 border-2 border-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
+      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 flex flex-col gap-16">
+        <section className="grid grid-cols-1 gap-8 md:grid-cols-[7fr_4fr] md:gap-12 md:items-end">
+          <h1 className="text-[clamp(46px,8vw,100px)] font-bold leading-[0.98] tracking-[-0.02em] text-gray-900 text-balance">
+            Your best games have something in common.
+          </h1>
+          <div>
+            <p className="mb-5 max-w-[32ch] text-xl text-gray-700">
+              Log each game, then log how you felt going in. After a few weeks your own results show which nights you play your best.
+            </p>
+            <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
+              <DemoButton className="rounded-lg border-2 border-blue-600 bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700 hover:border-blue-700 disabled:opacity-50" />
+              <Link href="/auth/signup" className="px-2 font-semibold text-gray-900 underline underline-offset-4">
+                Create an account
+              </Link>
+            </div>
+          </div>
+        </section>
+
+        <figure className="m-0">
+          <RinkChart points={points} zones={zones} />
+          <figcaption className="mt-3 max-w-[70ch] text-gray-500">
+            Sample season. Each puck is one game. The further right, the more confident you felt going in. The higher up, the more points you scored.
+          </figcaption>
+        </figure>
+
+        <section className="grid grid-cols-1 border-t-[3px] border-gray-900 md:grid-cols-3">
+          {STEPS.map((step, i) => (
+            <div
+              key={step.title}
+              className={`pt-5 pb-2 md:pr-6 ${i > 0 ? 'mt-5 border-t border-gray-200 pt-5 md:mt-0 md:border-t-0 md:border-l md:pl-6' : ''}`}
             >
-              Get Started
-            </Link>
-          </div>
-        </div>
-      </section>
-
-      {/* Feature Section */}
-      <section className="py-16 px-4 sm:px-6 lg:px-8 bg-gray-50">
-        <div className="max-w-7xl mx-auto">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-            {/* Feature 1 */}
-            <div className="text-center">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
-                <TrendingUp className="w-8 h-8 text-blue-600" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                Track Performance
-              </h3>
-              <p className="text-gray-600">
-                Log your game stats and see trends over time
-              </p>
+              <h2 className="mb-2 text-3xl font-bold text-gray-900">{step.title}</h2>
+              <p className="max-w-[32ch] text-gray-600">{step.body}</p>
             </div>
-
-            {/* Feature 2 */}
-            <div className="text-center">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
-                <Brain className="w-8 h-8 text-blue-600" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                Mental Insights
-              </h3>
-              <p className="text-gray-600">
-                Connect sleep, confidence, and stress to your performance
-              </p>
-            </div>
-
-            {/* Feature 3 */}
-            <div className="text-center">
-              <div className="inline-flex items-center justify-center w-16 h-16 bg-blue-100 rounded-full mb-4">
-                <Target className="w-8 h-8 text-blue-600" />
-              </div>
-              <h3 className="text-xl font-semibold text-gray-900 mb-3">
-                Improve Your Game
-              </h3>
-              <p className="text-gray-600">
-                Get personalized insights on what affects your play
-              </p>
-            </div>
-          </div>
-        </div>
-      </section>
+          ))}
+        </section>
+      </main>
     </div>
   );
 }

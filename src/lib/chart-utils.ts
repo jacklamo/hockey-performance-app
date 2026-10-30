@@ -96,3 +96,36 @@ export function buildBarChartData(games: Game[]): BarChartPoint[] {
     };
   });
 }
+
+export interface GroupBar {
+  name: string;
+  avgPoints: number;
+  games: number;
+}
+
+function groupBar(name: string, games: Game[]): GroupBar {
+  const total = games.reduce((sum, g) => sum + g.goals + g.assists, 0);
+  return { name, avgPoints: games.length ? total / games.length : 0, games: games.length };
+}
+
+/** Average points by confidence zone, using only games with a check-in. Same cut-offs as the insights. */
+export function buildConfidenceGroups(games: Game[]): GroupBar[] {
+  const withMs = games.filter((g) => g.mentalState != null);
+  const c = (g: Game) => g.mentalState!.confidence;
+  return [
+    groupBar('Not feeling it', withMs.filter((g) => c(g) <= 5)),
+    groupBar('Steady', withMs.filter((g) => c(g) >= 6 && c(g) <= 7)),
+    groupBar('Locked in', withMs.filter((g) => c(g) >= 8)),
+  ];
+}
+
+/** Average points by hours slept, using only games with a check-in. Same cut-offs as the insights. */
+export function buildSleepGroups(games: Game[]): GroupBar[] {
+  const withMs = games.filter((g) => g.mentalState != null);
+  const h = (g: Game) => g.mentalState!.sleepHours;
+  return [
+    groupBar('Under 7 h', withMs.filter((g) => h(g) < 7)),
+    groupBar('7 to 8 h', withMs.filter((g) => h(g) >= 7 && h(g) < 8)),
+    groupBar('8+ h', withMs.filter((g) => h(g) >= 8)),
+  ];
+}
