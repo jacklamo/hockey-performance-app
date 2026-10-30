@@ -2,6 +2,7 @@ import NextAuth, { NextAuthOptions } from 'next-auth'
 import CredentialsProvider from 'next-auth/providers/credentials'
 import { compare } from 'bcryptjs'
 import { prisma } from '@/src/lib/prisma'
+import { DEMO_EMAIL, DEMO_PASSWORD, resetDemoData } from '@/src/lib/demo'
 
 // This is your NextAuth configuration
 export const authOptions: NextAuthOptions = {
@@ -28,6 +29,11 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) {
           return null
+        }
+        if (credentials.email === DEMO_EMAIL) {
+          if (credentials.password !== DEMO_PASSWORD) return null
+          const demo = await resetDemoData(prisma)
+          return { id: demo.id, email: demo.email, name: demo.name }
         }
         const user = await prisma.user.findUnique({
           where: { email: credentials.email },

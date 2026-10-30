@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { TrendingUp, Brain, Target } from 'lucide-react';
+import DemoButton from '@/app/components/DemoButton';
 
 export default function Home() {
   return (
@@ -41,12 +42,15 @@ export default function Home() {
           <p className="text-xl text-gray-600 mb-10 max-w-2xl mx-auto">
             Track your stats and mental state to discover what impacts your game
           </p>
-          <Link
-            href="/auth/signup"
-            className="inline-block px-8 py-4 text-lg font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl"
-          >
-            Get Started
-          </Link>
+          <div className="flex flex-col sm:flex-row items-center justify-center gap-4">
+            <DemoButton className="px-8 py-4 text-lg font-semibold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shadow-lg hover:shadow-xl disabled:opacity-50" />
+            <Link
+              href="/auth/signup"
+              className="inline-block px-8 py-4 text-lg font-semibold text-blue-600 border-2 border-blue-600 rounded-lg hover:bg-blue-50 transition-colors"
+            >
+              Get Started
+            </Link>
+          </div>
         </div>
       </section>
 

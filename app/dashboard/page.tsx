@@ -17,6 +17,7 @@ import {
 } from 'recharts';
 import { buildLineChartData, buildBarChartData } from '@/src/lib/chart-utils';
 import Header from '@/app/components/Header';
+import CheckInPrompt from '@/app/components/CheckInPrompt';
 import { AlertCircle } from 'lucide-react';
 
 interface MentalState {
@@ -127,6 +128,9 @@ export default function DashboardPage() {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header title="Performance Dashboard" />
+      {!isLoading && gamesMissingCheckIn.length > 0 && (
+        <CheckInPrompt missingCount={gamesMissingCheckIn.length} latestGameId={gamesMissingCheckIn[0].id} />
+      )}
         <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-8">
             {[...Array(4)].map((_, i) => (
@@ -184,12 +188,12 @@ export default function DashboardPage() {
             {gamesMissingCheckIn.length > 0 && (
               <Link
                 href={`/games/${gamesMissingCheckIn[0].id}/mental`}
-                className="flex items-center justify-between mb-6 p-4 bg-blue-50 border border-blue-200 rounded-lg text-blue-900 hover:bg-blue-100 transition-colors"
+                className="flex items-center justify-between gap-4 mb-6 p-4 bg-amber-50 border-2 border-amber-300 rounded-lg text-amber-900 hover:bg-amber-100 transition-colors"
               >
-                <span className="font-medium">
+                <span className="font-semibold">
                   {gamesMissingCheckIn.length} {gamesMissingCheckIn.length === 1 ? 'game is' : 'games are'} missing a check-in
                 </span>
-                <span className="text-sm font-semibold">Log latest →</span>
+                <span className="shrink-0 rounded-lg bg-amber-500 px-3 py-1.5 text-sm font-bold text-white">Log check-in →</span>
               </Link>
             )}
 
@@ -358,7 +362,7 @@ export default function DashboardPage() {
                       <tr
                         key={game.id}
                         className="hover:bg-gray-50 cursor-pointer transition-colors"
-                        onClick={() => (window.location.href = `/games/${game.id}`)}
+                        onClick={() => router.push(`/games/${game.id}`)}
                       >
                         <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                           {new Date(game.date).toLocaleDateString('en-US', {

@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { Loader2 } from 'lucide-react';
+import DemoButton from '@/app/components/DemoButton';
 
 export default function LoginPage() {
   const router = useRouter();
@@ -136,6 +137,10 @@ export default function LoginPage() {
               )}
             </button>
           </form>
+
+          <div className="mt-4 flex justify-center">
+            <DemoButton className="w-full px-6 py-3 text-sm font-semibold text-blue-600 border-2 border-blue-600 rounded-lg hover:bg-blue-50 transition-colors disabled:opacity-50" />
+          </div>
 
           {/* Signup Link */}
           <p className="mt-6 text-center text-sm text-gray-600">

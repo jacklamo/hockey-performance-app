@@ -35,6 +35,7 @@ export default function GameDetailPage({ params }: { params: Promise<{ id: strin
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
   const [isConfirming, setIsConfirming] = useState(false);
+  const [deleteError, setDeleteError] = useState('');
   const [error, setError] = useState('');
   const [gameId, setGameId] = useState<string>('');
 
@@ -85,6 +86,7 @@ export default function GameDetailPage({ params }: { params: Promise<{ id: strin
 
   const handleDelete = async () => {
     setIsDeleting(true);
+    setDeleteError('');
     try {
       const response = await fetch(`/api/games/${gameId}`, {
         method: 'DELETE',
@@ -94,7 +96,7 @@ export default function GameDetailPage({ params }: { params: Promise<{ id: strin
       }
       router.push('/dashboard');
     } catch (err) {
-      alert('Failed to delete game. Please try again.');
+      setDeleteError('Failed to delete game. Please try again.');
       console.error(err);
       setIsDeleting(false);
     }
@@ -312,6 +314,10 @@ export default function GameDetailPage({ params }: { params: Promise<{ id: strin
             </>
           )}
         </div>
+
+        {deleteError && (
+          <p role="alert" className="mb-3 text-sm font-medium text-red-600">{deleteError}</p>
+        )}
 
         {/* Action Buttons */}
         <div className="flex flex-col sm:flex-row gap-3">
