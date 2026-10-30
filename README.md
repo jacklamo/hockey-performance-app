@@ -3,18 +3,20 @@
 A full-stack web app that helps hockey players see how **sleep, confidence, stress and energy** connect to their **on-ice results**. Players log game stats (or import an Instat PDF report), answer a 90-second check-in, and the dashboard surfaces patterns such as *"you average more points when confidence is 8+"*.
 
 <!-- LIVE DEMO: replace the line below with `**[Live demo →](https://your-url)**` once deployed -->
-<!-- SCREENSHOT 1 (hero): dashboard with charts and stat cards.
-     Save as docs/screenshots/dashboard.png, then uncomment:
-![Dashboard](docs/screenshots/dashboard.png) -->
+![Dashboard with scoreboard stats and plain-language insights](docs/screenshots/dashboard.png)
 
 ## Features
 
 - **Game log**: add, edit and delete games with stats (goals, assists, shots, +/-, ice time).
 - **Instat PDF import**: upload a report and the stats form is filled in for you.
 - **Mental check-in**: confidence, sleep hours and quality, stress and physical energy on 1–10 scales, plus notes.
-- **Dashboard**: summary cards, points-per-game and mental-state charts, and confidence/sleep impact insights.
+- **Dashboard**: summary stats, plain-language insights, and charts of points per game and points by confidence and sleep. A Charts | Rink switch shows the same games as pucks on a rink.
+- **Insights report**: for each insight, how it was calculated, what went into it, how much to trust it, and what it could mean. Each game page also shows how that game fits your patterns.
+- **Demo account**: one click on the landing page loads a seeded sample season (it resets on every demo login).
 - **Accounts**: email and password sign-up with JWT sessions; every page and API route is scoped to the signed-in user.
 - **NHL shot-data pipeline**: a Python tool that ingests a full NHL season of shot events into Postgres (see [`data-pipeline/`](data-pipeline/README.md)).
+
+![Points per game, and points by confidence and sleep](docs/screenshots/charts.png)
 
 <!-- SCREENSHOT 2 (log a game): the add-game form, ideally after a PDF import.
      Save as docs/screenshots/add-game.png, then uncomment:
