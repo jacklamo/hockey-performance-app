@@ -55,7 +55,7 @@ export default function CheckInPrompt({ missingCount, latestGameId }: CheckInPro
 
   return (
     <div
-      className="fixed inset-0 z-50 flex items-center justify-center bg-black/50 px-4"
+      className="fixed inset-0 z-50 flex items-center justify-center bg-[rgb(0_0_0/0.5)] px-4"
       onClick={dismiss}
     >
       <div
