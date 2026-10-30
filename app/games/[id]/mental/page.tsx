@@ -101,7 +101,7 @@ export default function MentalStatePage({ params }: { params: Promise<{ id: stri
 
   return (
     <>
-    <Header title={opponent ? `How were you feeling going into ${opponent}?` : 'Game check-in'} />
+    <Header title={opponent ? `How were you feeling going into ${opponent}?` : 'Game check-in'} width="narrow" />
     <div className="py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-2xl mx-auto">
         {/* Back Button */}

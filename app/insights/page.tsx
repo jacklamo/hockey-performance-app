@@ -164,7 +164,7 @@ export default function InsightsPage() {
 
   return (
     <div className="min-h-screen bg-gray-50">
-      <Header title="Your insights report" />
+      <Header title="Your insights report" width="medium" />
       <main className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8 pb-20">
         <Link href="/dashboard" className="font-semibold text-gray-900 underline underline-offset-4">
           Back to dashboard

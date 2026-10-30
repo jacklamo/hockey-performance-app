@@ -46,8 +46,30 @@ interface Game {
   mentalState?: MentalState;
 }
 
-const gameTooltipLabel = (game: unknown, payload: readonly { payload?: { date?: string } }[]) =>
-  `Game #${game} · ${payload?.[0]?.payload?.date ?? ''}`;
+// Chart hover popups share the card styling used across the site.
+const tooltipBox = 'rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 shadow-lg';
+
+function LineTip({ active, payload }: { active?: boolean; payload?: ReadonlyArray<{ payload: { game: number; date: string; points: number } }> }) {
+  if (!active || !payload?.length) return null;
+  const p = payload[0].payload;
+  return (
+    <div className={tooltipBox}>
+      <p className="font-serif text-base font-bold text-gray-900">Game #{p.game}, {p.date}</p>
+      <p className="text-[15px] text-gray-600">{p.points} {p.points === 1 ? 'point' : 'points'}</p>
+    </div>
+  );
+}
+
+function BarTip({ active, payload }: { active?: boolean; payload?: ReadonlyArray<{ payload: GroupBar }> }) {
+  if (!active || !payload?.length) return null;
+  const g = payload[0].payload;
+  return (
+    <div className={tooltipBox}>
+      <p className="font-serif text-base font-bold text-gray-900">{g.name}</p>
+      <p className="text-[15px] text-gray-600">{g.avgPoints.toFixed(1)} points a game over {g.games} {g.games === 1 ? 'game' : 'games'}</p>
+    </div>
+  );
+}
 
 function GroupTick({ x = 0, y = 0, payload, groups }: { x?: number; y?: number; payload?: { value: string }; groups: GroupBar[] }) {
   const group = groups.find((g) => g.name === payload?.value);
@@ -133,7 +155,8 @@ export default function DashboardPage() {
   const rinkPoints = gamesWithMentalState.map((g) => ({
     confidence: g.mentalState!.confidence,
     points: g.goals + g.assists,
-    label: `${new Date(g.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' })} vs ${g.opponent}: confidence ${g.mentalState!.confidence}, ${g.goals + g.assists} points`,
+    title: `${new Date(g.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' })} vs ${g.opponent}`,
+    detail: `Confidence ${g.mentalState!.confidence}, ${g.goals + g.assists} ${g.goals + g.assists === 1 ? 'point' : 'points'}`,
   }));
 
   if (isLoading) {
@@ -311,7 +334,7 @@ export default function DashboardPage() {
                           <CartesianGrid stroke="var(--color-gray-200)" vertical={false} />
                           <XAxis dataKey="game" tickFormatter={(g) => `#${g}`} tick={{ fontSize: 13, fill: 'var(--color-gray-500)' }} stroke="var(--color-gray-900)" interval="preserveStartEnd" />
                           <YAxis allowDecimals={false} domain={[0, (max: number) => Math.max(4, Math.ceil(max))]} tick={{ fontSize: 13, fill: 'var(--color-gray-500)' }} stroke="var(--color-gray-900)" />
-                          <Tooltip labelFormatter={gameTooltipLabel} />
+                          <Tooltip content={<LineTip />} cursor={{ stroke: 'var(--color-gray-300)' }} />
                           <ReferenceLine
                             y={avgPoints}
                             stroke="var(--color-gray-500)"
@@ -339,6 +362,7 @@ export default function DashboardPage() {
                             <CartesianGrid stroke="var(--color-gray-200)" vertical={false} />
                             <XAxis dataKey="name" tick={<GroupTick groups={groups} />} height={50} stroke="var(--color-gray-900)" interval={0} />
                             <YAxis allowDecimals={false} domain={[0, (max: number) => Math.max(4, Math.ceil(max))]} tick={{ fontSize: 13, fill: 'var(--color-gray-500)' }} stroke="var(--color-gray-900)" />
+                            <Tooltip content={<BarTip />} cursor={{ fill: 'var(--color-gray-100)', opacity: 0.6 }} />
                             <Bar dataKey="avgPoints" fill="var(--color-blue-600)" radius={[8, 8, 0, 0]} maxBarSize={88}>
                               <LabelList dataKey="avgPoints" position="top" formatter={(v: unknown) => Number(v).toFixed(1)} style={{ fill: 'var(--color-gray-900)', fontWeight: 700, fontSize: 16 }} />
                             </Bar>

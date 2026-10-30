@@ -106,7 +106,7 @@ export default function GameDetailPage({ params }: { params: Promise<{ id: strin
   if (isLoading) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header title="Game Detail" />
+        <Header title="Game Detail" width="medium" />
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="h-5 w-32 bg-gray-200 rounded skeleton-shimmer mb-6" />
           <div className="h-9 w-72 bg-gray-200 rounded skeleton-shimmer mb-2" />
@@ -130,7 +130,7 @@ export default function GameDetailPage({ params }: { params: Promise<{ id: strin
   if (error || !game) {
     return (
       <div className="min-h-screen bg-gray-50">
-        <Header title="Game Detail" />
+        <Header title="Game Detail" width="medium" />
         <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
           <div className="bg-white rounded-lg shadow-sm border border-red-200 p-8 text-center">
             <p className="text-red-600 font-medium mb-4">{error || 'Game not found'}</p>
@@ -151,7 +151,7 @@ export default function GameDetailPage({ params }: { params: Promise<{ id: strin
 
   return (
     <div key={gameId} className="min-h-screen bg-gray-50">
-      <Header title="Game Detail" />
+      <Header title="Game Detail" width="medium" />
       <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Back Button */}
         <div className="mb-6">

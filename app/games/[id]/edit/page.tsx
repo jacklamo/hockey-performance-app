@@ -161,7 +161,7 @@ export default function EditGamePage({ params }: { params: Promise<{ id: string 
   if (isLoading) {
     return (
       <>
-        <Header title="Edit Game" />
+        <Header title="Edit Game" width="narrow" />
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
           <p className="text-gray-600">Loading...</p>
         </div>
@@ -172,7 +172,7 @@ export default function EditGamePage({ params }: { params: Promise<{ id: string 
   if (error) {
     return (
       <>
-        <Header title="Edit Game" />
+        <Header title="Edit Game" width="narrow" />
         <div className="min-h-screen bg-gray-50 flex items-center justify-center">
           <div className="text-center">
             <p className="text-red-600 mb-4">{error}</p>
@@ -187,7 +187,7 @@ export default function EditGamePage({ params }: { params: Promise<{ id: string 
 
   return (
     <>
-    <Header title="Edit Game" />
+    <Header title="Edit Game" width="narrow" />
     <div className="bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-2xl mx-auto">
         {/* Back Button */}

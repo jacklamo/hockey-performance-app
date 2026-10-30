@@ -29,7 +29,8 @@ export default function Home() {
   const points = sample.map((g) => ({
     confidence: g.mentalState.confidence,
     points: g.goals + g.assists,
-    label: `${g.date.slice(0, 10)} vs ${g.opponent}: confidence ${g.mentalState.confidence}, ${g.goals + g.assists} points`,
+    title: `${new Date(g.date).toLocaleDateString('en-US', { month: 'short', day: 'numeric', timeZone: 'UTC' })} vs ${g.opponent}`,
+    detail: `Confidence ${g.mentalState.confidence}, ${g.goals + g.assists} ${g.goals + g.assists === 1 ? 'point' : 'points'}`,
   }));
 
   return (
@@ -45,12 +46,12 @@ export default function Home() {
       </header>
 
       <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 sm:py-16 flex flex-col gap-16">
-        <section className="grid grid-cols-1 gap-8 md:grid-cols-[7fr_4fr] md:gap-12 md:items-end">
-          <h1 className="text-[clamp(46px,8vw,100px)] font-bold leading-[0.98] tracking-[-0.02em] text-gray-900 text-balance">
+        <section className="flex flex-col gap-8">
+          <h1 className="max-w-[22ch] text-[clamp(42px,7vw,92px)] font-bold leading-[1] tracking-[-0.02em] text-gray-900 text-balance">
             Your best games have something in common.
           </h1>
-          <div>
-            <p className="mb-5 max-w-[32ch] text-xl text-gray-700">
+          <div className="flex flex-wrap items-center gap-x-12 gap-y-6">
+            <p className="max-w-[46ch] text-xl text-gray-700">
               Log each game, then log how you felt going in. After a few weeks your own results show which nights you play your best.
             </p>
             <div className="flex flex-wrap items-center gap-x-5 gap-y-3">

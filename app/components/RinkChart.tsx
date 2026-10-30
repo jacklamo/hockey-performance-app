@@ -6,7 +6,8 @@ import type { GroupBar } from '@/src/lib/chart-utils';
 export interface RinkPoint {
   confidence: number;
   points: number;
-  label: string;
+  title: string; // e.g. "Oct 12 vs Lakeside"
+  detail: string; // e.g. "Confidence 9, 3 points"
 }
 
 // Each puck is one game: further right = more confident, higher = more points.
@@ -14,6 +15,7 @@ export interface RinkPoint {
 export default function RinkChart({ points, zones }: { points: RinkPoint[]; zones: GroupBar[] }) {
   const ref = useRef<HTMLDivElement>(null);
   const [width, setWidth] = useState(0);
+  const [hover, setHover] = useState<{ x: number; y: number; title: string; detail: string } | null>(null);
 
   useEffect(() => {
     const el = ref.current;
@@ -38,7 +40,7 @@ export default function RinkChart({ points, zones }: { points: RinkPoint[]; zone
   const seen: Record<string, number> = {};
 
   return (
-    <div ref={ref} className="w-full">
+    <div ref={ref} className="relative w-full">
       {width > 0 && (
         <svg
           viewBox={`0 0 ${W} ${H}`}
@@ -75,9 +77,19 @@ export default function RinkChart({ points, zones }: { points: RinkPoint[]; zone
             const dx = side * Math.ceil((n - 1) / 2) * pr * 1.9;
             return (
               <g key={i} className="puck" style={{ ['--i' as string]: i }}>
-                <circle cx={X(g.confidence) + dx} cy={Y(g.points)} r={pr} className="fill-gray-900 stroke-white" strokeWidth={2}>
-                  <title>{g.label}</title>
-                </circle>
+                <circle
+                  cx={X(g.confidence) + dx}
+                  cy={Y(g.points)}
+                  r={pr}
+                  tabIndex={0}
+                  aria-label={`${g.title}: ${g.detail}`}
+                  className="fill-gray-900 stroke-white outline-none focus-visible:stroke-blue-600"
+                  strokeWidth={2}
+                  onMouseEnter={() => setHover({ x: X(g.confidence) + dx, y: Y(g.points) - pr, title: g.title, detail: g.detail })}
+                  onMouseLeave={() => setHover(null)}
+                  onFocus={() => setHover({ x: X(g.confidence) + dx, y: Y(g.points) - pr, title: g.title, detail: g.detail })}
+                  onBlur={() => setHover(null)}
+                />
               </g>
             );
           })}
@@ -90,6 +102,16 @@ export default function RinkChart({ points, zones }: { points: RinkPoint[]; zone
             </g>
           ))}
         </svg>
+      )}
+      {hover && (
+        <div
+          role="tooltip"
+          className="pointer-events-none absolute z-10 whitespace-nowrap rounded-xl border border-gray-200 bg-white px-3.5 py-2.5 shadow-lg"
+          style={{ left: hover.x, top: hover.y - 8, transform: 'translate(-50%, -100%)' }}
+        >
+          <p className="font-serif text-base font-bold text-gray-900">{hover.title}</p>
+          <p className="text-[15px] text-gray-600">{hover.detail}</p>
+        </div>
       )}
     </div>
   );

@@ -7,7 +7,15 @@ import { DEMO_EMAIL } from '@/src/lib/demo-credentials';
 
 interface HeaderProps {
   title: string;
+  // Match the title's column to the page content below it.
+  width?: 'wide' | 'medium' | 'narrow';
 }
+
+const TITLE_BOX = {
+  wide: { outer: 'max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8', inner: '', size: 'text-4xl sm:text-5xl' },
+  medium: { outer: 'max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 pt-8', inner: '', size: 'text-4xl sm:text-5xl' },
+  narrow: { outer: 'px-4 sm:px-6 lg:px-8 pt-8', inner: 'max-w-2xl mx-auto', size: 'text-3xl sm:text-4xl' },
+};
 
 const NAV = [
   { href: '/dashboard', label: 'Dashboard' },
@@ -15,7 +23,8 @@ const NAV = [
   { href: '/insights', label: 'Insights' },
 ];
 
-export default function Header({ title }: HeaderProps) {
+export default function Header({ title, width = 'wide' }: HeaderProps) {
+  const box = TITLE_BOX[width];
   const { data: session } = useSession();
   const pathname = usePathname();
   const isDemo = session?.user?.email === DEMO_EMAIL;
@@ -56,8 +65,10 @@ export default function Header({ title }: HeaderProps) {
           </nav>
         </div>
       </header>
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-8">
-        <h1 className="text-4xl sm:text-5xl font-bold text-gray-900">{title}</h1>
+      <div className={box.outer}>
+        <div className={box.inner}>
+          <h1 className={`${box.size} font-bold text-gray-900`}>{title}</h1>
+        </div>
       </div>
     </>
   );

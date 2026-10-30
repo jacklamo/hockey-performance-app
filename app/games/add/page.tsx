@@ -194,7 +194,7 @@ export default function AddGamePage() {
 
   return (
     <>
-    <Header title="Add New Game" />
+    <Header title="Add New Game" width="narrow" />
     <div className="bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
       <div className="max-w-2xl mx-auto">
         {/* Back Button */}
