@@ -5,6 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { signIn } from 'next-auth/react';
 import { Loader2 } from 'lucide-react';
+import { POSITIONS } from '@/src/lib/positions';
 
 export default function SignupPage() {
   const router = useRouter();
@@ -17,14 +18,6 @@ export default function SignupPage() {
     team: '',
     position: '',
   });
-
-  const positions = [
-    'Center',
-    'Left Wing',
-    'Right Wing',
-    'Defenseman',
-    'Goalie',
-  ];
 
   const validateForm = () => {
     const newErrors: Record<string, string> = {};
@@ -264,7 +257,7 @@ export default function SignupPage() {
                 disabled={isLoading}
               >
                 <option value="">Select a position</option>
-                {positions.map((pos) => (
+                {POSITIONS.map((pos) => (
                   <option key={pos} value={pos}>
                     {pos}
                   </option>

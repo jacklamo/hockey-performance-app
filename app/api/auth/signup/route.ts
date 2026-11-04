@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/src/lib/prisma"
 import { hashPassword } from "@/src/lib/auth"
+import { normalizePosition } from "@/src/lib/positions"
 
 export async function POST(request: NextRequest) {
   try {
@@ -33,8 +34,8 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate position
-    const validPositions = ["Center", "Left Wing", "Right Wing", "Defenseman", "Goalie"]
-    if (!validPositions.includes(position)) {
+    const pos = normalizePosition(position)
+    if (!pos) {
       return NextResponse.json(
         { error: "Invalid position" },
         { status: 400 }
@@ -63,7 +64,7 @@ export async function POST(request: NextRequest) {
         password: hashedPassword,
         name,
         team,
-        position
+        position: pos
       },
       select: {
         id: true,
