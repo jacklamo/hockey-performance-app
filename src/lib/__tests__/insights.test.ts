@@ -1,4 +1,4 @@
-import { computeInsights, InsightGame } from '../insights';
+import { computeInsights, InsightGame, MIN_CHECKINS, MIN_GROUP } from '../insights';
 
 let n = 0;
 const game = (confidence: number, sleepHours: number, points: number): InsightGame => ({
@@ -11,9 +11,46 @@ const game = (confidence: number, sleepHours: number, points: number): InsightGa
 });
 
 describe('computeInsights', () => {
-  test('locks until 5 check-ins and reports how many are missing', () => {
-    const games = [game(9, 8, 2), game(3, 6, 0), { ...game(5, 7, 1), mentalState: null }];
-    expect(computeInsights(games)).toMatchObject({ checkInCount: 2, needed: 3, insights: [] });
+  test('locks at 7 check-ins (MIN_CHECKINS) and reports how many are missing', () => {
+    const games = [...Array(7)].map(() => game(9, 8, 2)).concat([{ ...game(5, 7, 1), mentalState: null }]);
+    expect(MIN_CHECKINS).toBe(8);
+    expect(MIN_GROUP).toBe(3);
+    expect(computeInsights(games)).toMatchObject({ checkInCount: 7, needed: 1, insights: [] });
+  });
+
+  test('unlocks at 8 check-ins', () => {
+    const games = [...Array(4)].map(() => game(9, 8, 2)).concat([...Array(4)].map(() => game(3, 6, 0)));
+    const r = computeInsights(games);
+    expect(r.needed).toBe(0);
+    expect(r.insights.length).toBeGreaterThan(0);
+  });
+
+  test('flat beats early for small groups with a tiny gap', () => {
+    const games = [...Array(3)].flatMap(() => [game(9, 8, 1), game(3, 6, 1)]).concat([game(6, 7.5, 1), game(6, 7.5, 1)]);
+    expect(computeInsights(games).insights[0].trust).toBe('flat');
+  });
+
+  test('games without check-in are ignored', () => {
+    const base = [...Array(5)].flatMap(() => [game(9, 8, 2), game(3, 6, 0)]);
+    const extra = [{ ...game(9, 8, 5), mentalState: null }, { ...game(3, 6, 5), mentalState: undefined }];
+    const a = computeInsights(base);
+    const b = computeInsights([...base, ...extra]);
+    expect(b.checkInCount).toBe(a.checkInCount);
+    for (const i of [0, 1]) {
+      expect(b.insights[i].high.avgPoints).toBe(a.insights[i].high.avgPoints);
+      expect(b.insights[i].low.avgPoints).toBe(a.insights[i].low.avgPoints);
+      expect(b.insights[i].middleCount).toBe(a.insights[i].middleCount);
+    }
+  });
+
+  test('insight wording has a sample size and no causal words', () => {
+    const games = [...Array(5)].flatMap(() => [game(9, 8, 2), game(3, 6, 0)]);
+    for (const i of computeInsights(games).insights) {
+      expect(i.basedOn).toMatch(/\d+ games \(\d+ vs \d+\)/);
+      for (const t of [i.headline, i.trustNote, i.basedOn, ...i.couldMean]) {
+        expect(t).not.toMatch(/(because|causes?|leads? to|boosts?)/i);
+      }
+    }
   });
 
   test('computes group averages, middle count and a positive headline', () => {
@@ -46,7 +83,7 @@ describe('computeInsights', () => {
   });
 
   test('skips a comparison when a group has fewer than 3 games', () => {
-    const games = [...Array(5)].map(() => game(9, 8, 1)).concat([game(3, 6, 0)]);
+    const games = [...Array(5)].map(() => game(9, 8, 1)).concat([game(3, 6, 0), game(6, 7.5, 1), game(6, 7.5, 1), game(6, 7.5, 1)]);
     expect(computeInsights(games).insights).toEqual([]);
   });
 });

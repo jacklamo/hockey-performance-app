@@ -36,12 +36,13 @@ export interface Insight {
   middleCount: number; // check-in games in neither group
   trust: Trust;
   trustNote: string;
+  basedOn: string;
   couldMean: string[];
   notIncluded: string[];
 }
 
-export const MIN_CHECKINS = 5;
-const MIN_GROUP = 3; // below this we say "not enough yet" instead of comparing
+export const MIN_CHECKINS = 8;
+export const MIN_GROUP = 3; // below this we say "not enough yet" instead of comparing
 const EARLY_GROUP = 5; // below this, flag the result as an early signal
 const MEANINGFUL_DIFF = 0.3;
 
@@ -73,16 +74,16 @@ function makeGroup(
 
 function trustFor(high: Group, low: Group, diff: number): { trust: Trust; trustNote: string } {
   const smallest = Math.min(high.games.length, low.games.length);
-  if (smallest < EARLY_GROUP) {
-    return {
-      trust: 'early',
-      trustNote: `One of the two groups only has ${smallest} games in it, so a single big night could swing this a lot. Treat it as an early hint and watch whether it holds as you log more games.`,
-    };
-  }
   if (Math.abs(diff) < MEANINGFUL_DIFF) {
     return {
       trust: 'flat',
       trustNote: `The two groups are within ${MEANINGFUL_DIFF} points of each other, which is about the size of normal game-to-game ups and downs. There’s no real pattern here yet.`,
+    };
+  }
+  if (smallest < EARLY_GROUP) {
+    return {
+      trust: 'early',
+      trustNote: `One of the two groups only has ${smallest} games in it, so a single big night could swing this a lot. Treat it as an early hint and watch whether it holds as you log more games.`,
     };
   }
   return {
@@ -139,6 +140,7 @@ export function computeInsights(games: InsightGame[]): {
       low,
       diff,
       middleCount: withCheckIn.length - high.games.length - low.games.length,
+      basedOn: `Based on ${high.games.length + low.games.length} games (${high.games.length} vs ${low.games.length}) out of your ${withCheckIn.length} with a check-in`,
       ...trustFor(high, low, diff),
       couldMean,
       notIncluded: NOT_INCLUDED,
