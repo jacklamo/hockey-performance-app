@@ -3,7 +3,7 @@ import CredentialsProvider from 'next-auth/providers/credentials'
 import { compare } from 'bcryptjs'
 import { prisma } from '@/src/lib/prisma'
 import { createDemoUser } from '@/src/lib/demo'
-import { DEMO_EMAIL, DEMO_PASSWORD, DEMO_DOMAIN, DEMO_TTL_MS, isDemoUser } from '@/src/lib/demo-credentials'
+import { DEMO_GOALIE_EMAIL, isDemoEntryEmail, DEMO_PASSWORD, DEMO_DOMAIN, DEMO_TTL_MS, isDemoUser } from '@/src/lib/demo-credentials'
 
 // This is your NextAuth configuration
 export const authOptions: NextAuthOptions = {
@@ -31,9 +31,9 @@ export const authOptions: NextAuthOptions = {
         if (!credentials?.email || !credentials?.password) {
           return null
         }
-        if (credentials.email === DEMO_EMAIL) {
+        if (isDemoEntryEmail(credentials.email)) {
           if (credentials.password !== DEMO_PASSWORD) return null
-          const demo = await createDemoUser(prisma)
+          const demo = await createDemoUser(prisma, credentials.email === DEMO_GOALIE_EMAIL ? 'Goalie' : 'Center')
           return { id: demo.id, email: demo.email, name: demo.name }
         }
         if (credentials.email.endsWith(DEMO_DOMAIN)) return null

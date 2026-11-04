@@ -9,7 +9,7 @@ import {
   DEMO_LIMIT,
   DEMO_WINDOW_MS,
 } from './src/lib/rate-limit'
-import { DEMO_EMAIL } from './src/lib/demo-credentials'
+import { isDemoEntryEmail } from './src/lib/demo-credentials'
 
 // One map per bucket so demo clicks, sign-ups and failed logins never use each other's allowance.
 // In-memory: each server instance counts on its own.
@@ -48,7 +48,7 @@ export async function middleware(request: NextRequest) {
     let isDemoEmail = false
     if (request.method === 'POST' && pathname === '/api/auth/callback/credentials') {
       const body = await request.clone().text()
-      isDemoEmail = new URLSearchParams(body).get('email') === DEMO_EMAIL
+      isDemoEmail = isDemoEntryEmail(new URLSearchParams(body).get('email'))
     }
 
     const bucket = classifyAuthRequest(request.method, pathname, isDemoEmail)

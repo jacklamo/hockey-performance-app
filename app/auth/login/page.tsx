@@ -140,8 +140,9 @@ export default function LoginPage() {
             </button>
           </form>
 
-          <div className="mt-4 flex justify-center">
-            <DemoButton className="w-full px-6 py-3 text-sm font-semibold text-blue-600 border-2 border-blue-600 rounded-lg hover:bg-blue-50 transition-colors disabled:opacity-50" />
+          <div className="mt-4 flex flex-col gap-3 sm:flex-row">
+            <DemoButton variant="skater" className="w-full px-6 py-3 text-sm font-semibold text-blue-600 border-2 border-blue-600 rounded-lg hover:bg-blue-50 transition-colors disabled:opacity-50" />
+            <DemoButton variant="goalie" className="w-full px-6 py-3 text-sm font-semibold text-blue-600 border-2 border-blue-600 rounded-lg hover:bg-blue-50 transition-colors disabled:opacity-50" />
           </div>
 
           {/* Signup Link */}

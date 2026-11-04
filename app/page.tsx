@@ -55,7 +55,10 @@ export default function Home() {
               Log each game, then log how you felt going in. After a few weeks your own results show which nights you play your best.
             </p>
             <div className="flex flex-wrap items-center gap-x-5 gap-y-3">
-              <DemoButton className="rounded-lg border-2 border-blue-600 bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700 hover:border-blue-700 disabled:opacity-50" />
+              <div className="flex flex-wrap gap-3">
+                <DemoButton variant="skater" className="rounded-lg border-2 border-blue-600 bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700 hover:border-blue-700 disabled:opacity-50" />
+                <DemoButton variant="goalie" className="rounded-lg border-2 border-blue-600 bg-blue-600 px-6 py-3 font-semibold text-white hover:bg-blue-700 hover:border-blue-700 disabled:opacity-50" />
+              </div>
               <Link href="/auth/signup" className="px-2 font-semibold text-gray-900 underline underline-offset-4">
                 Create an account
               </Link>
