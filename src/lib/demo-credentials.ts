@@ -2,9 +2,13 @@
 // the server creates a fresh user (email ending in DEMO_DOMAIN) with its own sample season.
 // Kept separate from demo.ts so client components don't pull in server-only code.
 export const DEMO_EMAIL = 'demo@hockeytracker.app'
+// Must not end in DEMO_DOMAIN, or authorize would reject it as a per-session user.
+export const DEMO_GOALIE_EMAIL = 'demo-goalie@hockeytracker.app'
 export const DEMO_PASSWORD = 'demo-account'
 
 export const DEMO_DOMAIN = '@demo.hockeytracker.app'
 export const DEMO_TTL_MS = 24 * 60 * 60 * 1000
 
-export const isDemoUser = (email?: string | null) => email === DEMO_EMAIL || !!email?.endsWith(DEMO_DOMAIN)
+export const isDemoEntryEmail = (email?: string | null) => email === DEMO_EMAIL || email === DEMO_GOALIE_EMAIL
+
+export const isDemoUser = (email?: string | null) => isDemoEntryEmail(email) || !!email?.endsWith(DEMO_DOMAIN)
