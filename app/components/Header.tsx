@@ -39,7 +39,7 @@ export default function Header({ title, width = 'wide' }: HeaderProps) {
         )}
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center gap-x-6 gap-y-2">
           <Link href="/dashboard" className="font-serif font-bold text-xl sm:text-2xl mr-auto">
-            <span>GameFeel</span>
+            <span className="inline-flex items-center gap-2"><img src="/logo.svg" alt="" className="h-7 w-7" />GameFeel</span>
           </Link>
           <nav className="flex items-center gap-4 sm:gap-6 text-[15px]" aria-label="Main">
             {NAV.map((item) => {
