@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { computeInsights, gameInsightsFor, InsightGame } from '@/src/lib/insights';
+import { computeInsights, MIN_CHECKINS, gameInsightsFor, InsightGame } from '@/src/lib/insights';
 
 // Loads all games itself so the game page renders without waiting on it.
 export default function GameInsights({ gameId, hasCheckIn }: { gameId: string; hasCheckIn: boolean }) {
@@ -30,7 +30,7 @@ export default function GameInsights({ gameId, hasCheckIn }: { gameId: string; h
   if (!games) return null;
 
   const items = gameInsightsFor(gameId, games);
-  const { needed } = computeInsights(games);
+  const { needed, checkInCount } = computeInsights(games);
   if (items.length === 0 && needed === 0) return null;
 
   return (
@@ -38,7 +38,7 @@ export default function GameInsights({ gameId, hasCheckIn }: { gameId: string; h
       <h2 className="text-xl font-bold text-gray-900 mb-4">How this game fits your patterns</h2>
       {needed > 0 ? (
         <p className="text-gray-600">
-          {needed} more {needed === 1 ? 'check-in' : 'check-ins'} and we&apos;ll show how this game compares with your usual patterns.
+          {checkInCount} of {MIN_CHECKINS} check-ins, then we&apos;ll show how this game compares with your usual patterns.
         </p>
       ) : (
         <>

@@ -17,7 +17,7 @@ import {
   LabelList,
 } from 'recharts';
 import { buildLineChartData, buildConfidenceGroups, buildSleepGroups, GroupBar } from '@/src/lib/chart-utils';
-import { computeInsights } from '@/src/lib/insights';
+import { computeInsights, MIN_CHECKINS, MIN_GROUP } from '@/src/lib/insights';
 import Header from '@/app/components/Header';
 import CheckInPrompt from '@/app/components/CheckInPrompt';
 import RinkChart from '@/app/components/RinkChart';
@@ -146,7 +146,7 @@ export default function DashboardPage() {
     ? gamesWithMentalState.reduce((sum, game) => sum + (game.mentalState?.sleepHours || 0), 0) / gamesWithMentalState.length
     : 0;
 
-  const { needed: checkInsNeeded, insights } = computeInsights(games);
+  const { needed: checkInsNeeded, checkInCount, insights } = computeInsights(games);
 
   const recentGames = games.slice(0, 5);
   const lineChartData = buildLineChartData(games);
@@ -263,8 +263,11 @@ export default function DashboardPage() {
               {checkInsNeeded > 0 ? (
                 <div className="rounded-xl border border-blue-200 bg-blue-50 p-6">
                   <p className="mb-1 text-lg font-semibold text-blue-900">
-                    {checkInsNeeded} more {checkInsNeeded === 1 ? 'check-in' : 'check-ins'} and your insights unlock
+                    {checkInCount} of {MIN_CHECKINS} check-ins
                   </p>
+                  <div role="progressbar" aria-valuemin={0} aria-valuemax={MIN_CHECKINS} aria-valuenow={checkInCount} className="mt-3 mb-3 h-2 rounded-full bg-blue-100">
+                    <div className="h-2 rounded-full bg-blue-600" style={{ width: `${(checkInCount / MIN_CHECKINS) * 100}%` }} />
+                  </div>
                   <p className="text-blue-800">
                     Once you&apos;ve logged a few games with check-ins, we&apos;ll show you how sleep and confidence line up with your scoring.
                   </p>
@@ -272,7 +275,7 @@ export default function DashboardPage() {
               ) : insights.length === 0 ? (
                 <div className="rounded-xl border border-blue-200 bg-blue-50 p-6">
                   <p className="text-blue-800">
-                    Keep logging. To compare, we need at least a few games at both ends, like nights you felt confident and nights you didn&apos;t, or well-rested and short on sleep.
+                    Keep logging. To compare, we need at least {MIN_GROUP} games at both ends, like nights you felt confident and nights you didn&apos;t, or well-rested and short on sleep.
                   </p>
                 </div>
               ) : (
@@ -281,9 +284,10 @@ export default function DashboardPage() {
                     {insights.map((insight) => (
                       <div key={insight.id}>
                         <span className="inline-block rounded-full border border-gray-200 px-3 py-0.5 text-[13px] font-medium text-gray-600">
-                          {insight.trust === 'early' ? 'Early signal' : insight.trust === 'flat' ? 'No clear pattern' : 'Worth watching'}
+                          {insight.trust === 'early' ? 'Early signal' : insight.trust === 'flat' ? 'No clear pattern yet' : 'Worth watching'}
                         </span>
                         <p className="mt-2.5 max-w-[34ch] font-serif text-[23px] leading-[1.38] text-gray-900">{insight.headline}</p>
+                        <p className="mt-2 text-sm text-gray-500">{insight.basedOn}</p>
                       </div>
                     ))}
                   </div>

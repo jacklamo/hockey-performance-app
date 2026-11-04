@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { Loader2 } from 'lucide-react';
 import Header from '@/app/components/Header';
-import { computeInsights, Group, Insight, InsightGame } from '@/src/lib/insights';
+import { computeInsights, MIN_CHECKINS, MIN_GROUP, Group, Insight, InsightGame } from '@/src/lib/insights';
 
 const formatDate = (iso: string) => {
   const [y, m, d] = iso.split('T')[0].split('-').map(Number);
@@ -75,6 +75,7 @@ function Report({ insight, checkInCount }: { insight: Insight; checkInCount: num
     <article className="border-t-[3px] border-gray-900 pt-5">
       <h2 className="mb-2 text-xl font-bold text-blue-600">{insight.title}</h2>
       <p className="max-w-[30ch] font-serif text-[clamp(26px,3.6vw,36px)] font-semibold leading-tight text-gray-900">{insight.headline}</p>
+      <p className="mt-2 text-sm text-gray-500">{insight.basedOn}</p>
 
       <div className="mt-7 mb-2 max-w-[640px]">
         <Bar label={high.rule} group={high} max={max} />
@@ -183,12 +184,11 @@ export default function InsightsPage() {
           </div>
         ) : result.needed > 0 ? (
           <p className="text-gray-700">
-            You need {result.needed} more {result.needed === 1 ? 'check-in' : 'check-ins'} before there&apos;s enough to
-            report on.
+            {result.checkInCount} of {MIN_CHECKINS} check-ins so far. Log a few more and there will be enough to report on.
           </p>
         ) : result.insights.length === 0 ? (
           <p className="text-gray-700">
-            Not enough variety yet. We need at least a few games at both ends, like nights you felt confident and nights
+            Not enough variety yet. We need at least {MIN_GROUP} games at both ends, like nights you felt confident and nights
             you didn&apos;t, to make a comparison.
           </p>
         ) : (
