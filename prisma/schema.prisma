@@ -19,7 +19,8 @@ model User {
     email String @unique
     password  String
     name  String
-    team  String
+    team  String?
+    birthYear Int?
     position  String
     createdAt DateTime  @default(now())
     games Game[]
@@ -40,6 +41,10 @@ model Game {
   plusMinus   Int          @default(0)        // Plus/minus stat (can be negative)
   iceTime     Int          @default(0)
 
+  shotsAgainst Int?                           // Goalie stats (null for skaters)
+  goalsAgainst Int?
+  saves        Int?
+
   createdAt DateTime  @default(now())
   updatedAt DateTime  @updatedAt
   mentalState MentalState?
@@ -58,6 +63,8 @@ model MentalState {
   stressLevel    Int                           // 1-10
   physicalEnergy Int                           // 1-10
   notes          String?                       // Optional text notes
+  timing         String?                       // 'before' | 'after', null = unknown
+  checkedInAt    DateTime?
   
   createdAt      DateTime @default(now())
   updatedAt      DateTime @updatedAt
