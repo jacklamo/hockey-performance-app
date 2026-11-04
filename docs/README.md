@@ -1,4 +1,4 @@
-# Hockey Performance Tracker
+# GameFeel
 
 Track hockey stats alongside mental state (sleep, confidence, stress) to find correlations between psychology and on-ice performance.
 

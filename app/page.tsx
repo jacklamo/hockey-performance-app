@@ -37,7 +37,7 @@ export default function Home() {
     <div className="min-h-screen bg-gray-50">
       <header className="bg-(--dasher) text-(--dasher-fg) rounded-b-xl">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3.5 flex flex-wrap items-center gap-x-6 gap-y-2">
-          <span className="font-serif font-bold text-xl sm:text-2xl mr-auto">Hockey Performance Tracker</span>
+          <span className="font-serif font-bold text-xl sm:text-2xl mr-auto">GameFeel</span>
           <nav className="flex items-center gap-5 text-[15px]" aria-label="Account">
             <Link href="/auth/login" className="opacity-80 hover:opacity-100">Log in</Link>
             <Link href="/auth/signup" className="opacity-80 hover:opacity-100">Create account</Link>

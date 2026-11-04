@@ -1,6 +1,6 @@
 import Link from 'next/link';
 
-export const metadata = { title: 'Busy right now | Hockey Performance Tracker' };
+export const metadata = { title: 'Busy right now | GameFeel' };
 
 // Served with a 429 status by the middleware when too many auth requests arrive from one address.
 export default function BusyPage() {

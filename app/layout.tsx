@@ -15,7 +15,7 @@ const figtree = Figtree({
 });
 
 export const metadata: Metadata = {
-  title: "Hockey Performance Tracker",
+  title: "GameFeel",
   description: "See how sleep, confidence, stress and energy connect to your on-ice performance.",
 };
 

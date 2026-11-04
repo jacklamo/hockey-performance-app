@@ -1,8 +1,8 @@
-# Hockey Performance Tracker
+# GameFeel
 
 A full-stack web app that helps hockey players see how **sleep, confidence, stress and energy** connect to their **on-ice results**. Players log game stats (or import an Instat PDF report), answer a 90-second check-in, and the dashboard surfaces patterns such as *"you average more points when confidence is 8+"*.
 
-**[Live demo →](https://hockey-performance-app.vercel.app/)** (use "Try the demo" on the landing page, no sign-up needed)
+**[Live demo →](https://gamefeel.app/)** (use "Try the demo" on the landing page, no sign-up needed)
 
 ![Dashboard with scoreboard stats and plain-language insights](docs/screenshots/dashboard.png)
 
