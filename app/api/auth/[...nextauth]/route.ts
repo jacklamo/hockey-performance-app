@@ -34,7 +34,7 @@ export const authOptions: NextAuthOptions = {
         if (isDemoEntryEmail(credentials.email)) {
           if (credentials.password !== DEMO_PASSWORD) return null
           const demo = await createDemoUser(prisma, credentials.email === DEMO_GOALIE_EMAIL ? 'Goalie' : 'Center')
-          return { id: demo.id, email: demo.email, name: demo.name }
+          return { id: demo.id, email: demo.email, name: demo.name, position: demo.position }
         }
         if (credentials.email.endsWith(DEMO_DOMAIN)) return null
         const user = await prisma.user.findUnique({
@@ -51,6 +51,7 @@ export const authOptions: NextAuthOptions = {
           id: user.id,
           email: user.email,
           name: user.name,
+          position: user.position,
         }
       },
     }),
@@ -64,6 +65,12 @@ export const authOptions: NextAuthOptions = {
         token.id = user.id
         // Demo data is deleted after DEMO_TTL_MS, so the session stops working then too.
         if (isDemoUser(user.email)) token.demoExpiresAt = Date.now() + DEMO_TTL_MS
+        token.position = user.position
+      }
+      // Sessions issued before position was added to the token.
+      if (!token.position && token.id) {
+        const u = await prisma.user.findUnique({ where: { id: token.id }, select: { position: true } })
+        if (u) token.position = u.position
       }
       return token
     },
@@ -75,6 +82,7 @@ export const authOptions: NextAuthOptions = {
       }
       if (session.user) {
         session.user.id = token.id as string
+        session.user.position = token.position
       }
       return session
     },
