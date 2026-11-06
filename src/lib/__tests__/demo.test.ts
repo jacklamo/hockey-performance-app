@@ -1,3 +1,4 @@
+import { computeInsights } from '../insights'
 import { buildDemoGames, buildDemoGoalieGames } from '../demo'
 import { isDemoUser, isDemoEntryEmail, DEMO_EMAIL, DEMO_GOALIE_EMAIL, DEMO_DOMAIN } from '../demo-credentials'
 
@@ -93,5 +94,23 @@ describe('isDemoUser / isDemoEntryEmail', () => {
     expect(isDemoEntryEmail(DEMO_GOALIE_EMAIL)).toBe(true)
     expect(isDemoEntryEmail(`demo-abc${DEMO_DOMAIN}`)).toBe(false)
     expect(isDemoEntryEmail('player@gmail.com')).toBe(false)
+  })
+})
+
+describe('demo goalie insights', () => {
+  test('unlock with at least one insight in goalie mode', () => {
+    const games = buildDemoGoalieGames(NOW).map((g, i) => ({
+      id: `d${i}`,
+      date: g.date.toISOString(),
+      opponent: g.opponent,
+      goals: 0,
+      assists: 0,
+      shotsAgainst: g.shotsAgainst,
+      saves: g.saves,
+      mentalState: g.mentalState,
+    }))
+    const r = computeInsights(games, { goalie: true })
+    expect(r.needed).toBe(0)
+    expect(r.insights.length).toBeGreaterThan(0)
   })
 })

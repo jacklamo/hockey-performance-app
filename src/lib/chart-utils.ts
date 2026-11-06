@@ -20,6 +20,9 @@ interface Game {
   shots: number;
   plusMinus: number;
   iceTime: number;
+  shotsAgainst?: number | null;
+  goalsAgainst?: number | null;
+  saves?: number | null;
   mentalState?: MentalState;
 }
 
@@ -101,6 +104,7 @@ export interface GroupBar {
   name: string;
   avgPoints: number;
   games: number;
+  savePct?: number | null; // goalie builders only: sum(saves)/sum(SA)
 }
 
 function groupBar(name: string, games: Game[]): GroupBar {
@@ -127,5 +131,61 @@ export function buildSleepGroups(games: Game[]): GroupBar[] {
     groupBar('Under 7 h', withMs.filter((g) => h(g) < 7)),
     groupBar('7 to 8 h', withMs.filter((g) => h(g) >= 7 && h(g) < 8)),
     groupBar('8+ h', withMs.filter((g) => h(g) >= 8)),
+  ];
+}
+
+export interface SavePctChartPoint {
+  game: number;
+  date: string;
+  savePct: number;
+}
+
+export interface GoalsAgainstChartPoint {
+  game: number;
+  date: string;
+  goalsAgainst: number;
+}
+
+/** Last 10 games with shots against, chronological. Game numbers count all games. */
+export function buildSavePctChartData(games: Game[]): SavePctChartPoint[] {
+  const sorted = sortChronologically(games);
+  return sorted
+    .filter((g) => (g.shotsAgainst ?? 0) > 0)
+    .slice(-10)
+    .map((g) => ({ game: sorted.indexOf(g) + 1, date: formatDate(g.date), savePct: (g.saves ?? 0) / g.shotsAgainst! }));
+}
+
+export function buildGoalsAgainstChartData(games: Game[]): GoalsAgainstChartPoint[] {
+  const sorted = sortChronologically(games);
+  return sorted
+    .slice(-10)
+    .map((g) => ({ game: sorted.indexOf(g) + 1, date: formatDate(g.date), goalsAgainst: g.goalsAgainst ?? 0 }));
+}
+
+function goalieBar(name: string, games: Game[]): GroupBar {
+  const sa = games.reduce((a, g) => a + (g.shotsAgainst ?? 0), 0);
+  const sv = games.reduce((a, g) => a + (g.saves ?? 0), 0);
+  return { name, avgPoints: 0, games: games.length, savePct: sa > 0 ? sv / sa : null };
+}
+
+/** Save % by confidence zone, check-in games only. Same cut-offs and labels as the skater version. */
+export function buildGoalieConfidenceGroups(games: Game[]): GroupBar[] {
+  const withMs = games.filter((g) => g.mentalState != null);
+  const c = (g: Game) => g.mentalState!.confidence;
+  return [
+    goalieBar('Not feeling it', withMs.filter((g) => c(g) <= 5)),
+    goalieBar('Steady', withMs.filter((g) => c(g) >= 6 && c(g) <= 7)),
+    goalieBar('Locked in', withMs.filter((g) => c(g) >= 8)),
+  ];
+}
+
+/** Save % by hours slept, check-in games only. Same cut-offs and labels as the skater version. */
+export function buildGoalieSleepGroups(games: Game[]): GroupBar[] {
+  const withMs = games.filter((g) => g.mentalState != null);
+  const h = (g: Game) => g.mentalState!.sleepHours;
+  return [
+    goalieBar('Under 7 h', withMs.filter((g) => h(g) < 7)),
+    goalieBar('7 to 8 h', withMs.filter((g) => h(g) >= 7 && h(g) < 8)),
+    goalieBar('8+ h', withMs.filter((g) => h(g) >= 8)),
   ];
 }

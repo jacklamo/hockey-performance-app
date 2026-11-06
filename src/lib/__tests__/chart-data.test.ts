@@ -1,4 +1,4 @@
-import { buildLineChartData, buildBarChartData, buildConfidenceGroups, buildSleepGroups } from '@/src/lib/chart-utils';
+import { buildLineChartData, buildBarChartData, buildConfidenceGroups, buildSleepGroups, buildSavePctChartData, buildGoalsAgainstChartData, buildGoalieConfidenceGroups, buildGoalieSleepGroups } from '@/src/lib/chart-utils';
 import type { LineChartPoint, BarChartPoint } from '@/src/lib/chart-utils';
 
 interface MentalState {
@@ -21,6 +21,9 @@ interface Game {
   shots: number;
   plusMinus: number;
   iceTime: number;
+  shotsAgainst?: number | null;
+  goalsAgainst?: number | null;
+  saves?: number | null;
   mentalState?: MentalState;
 }
 
@@ -37,6 +40,9 @@ function makeGame(overrides: Partial<Game> & { date: string }): Game {
     shots: overrides.shots ?? 0,
     plusMinus: overrides.plusMinus ?? 0,
     iceTime: overrides.iceTime ?? 0,
+    shotsAgainst: overrides.shotsAgainst,
+    goalsAgainst: overrides.goalsAgainst,
+    saves: overrides.saves,
     mentalState: overrides.mentalState,
   };
 }
@@ -231,5 +237,38 @@ describe('group bars', () => {
 
   test('sleep groups split at 7 and 8 hours', () => {
     expect(buildSleepGroups(games).map((g) => g.games)).toEqual([1, 1, 1]);
+  });
+});
+
+describe('goalie chart builders', () => {
+  const ms = (confidence: number, sleepHours: number) => ({ confidence, sleepHours, sleepQuality: 5, stressLevel: 5, physicalEnergy: 5 });
+  const gg = (day: number, sa: number, ga: number, extra: Partial<Game> = {}) =>
+    makeGame({ id: `d${day}`, date: `2024-03-${String(day).padStart(2, '0')}`, shotsAgainst: sa, goalsAgainst: ga, saves: sa - ga, ...extra });
+
+  test('save % skips zero-shot games before taking last 10, keeps chronological numbering', () => {
+    const games = [...Array(12)].map((_, i) => gg(i + 1, i === 11 ? 0 : 20, 2)).reverse();
+    const data = buildSavePctChartData(games);
+    expect(data).toHaveLength(10);
+    expect(data[9].game).toBe(11);
+    expect(data[0].game).toBe(2);
+    expect(data[0].savePct).toBeCloseTo(0.9);
+  });
+
+  test('goals against: last 10 chronological', () => {
+    const games = [...Array(11)].map((_, i) => gg(i + 1, 20, i)).reverse();
+    const data = buildGoalsAgainstChartData(games);
+    expect(data).toHaveLength(10);
+    expect(data[0]).toMatchObject({ game: 2, goalsAgainst: 1 });
+    expect(data[9]).toMatchObject({ game: 11, goalsAgainst: 10 });
+  });
+
+  test('group builders use sums and same labels', () => {
+    const games = [gg(1, 10, 1, { mentalState: ms(9, 8) }), gg(2, 30, 2, { mentalState: ms(9, 8) }), gg(3, 20, 4, { mentalState: ms(3, 6) }), gg(4, 20, 0)];
+    const c = buildGoalieConfidenceGroups(games);
+    expect(c.map((x) => x.name)).toEqual(buildConfidenceGroups(games).map((x) => x.name));
+    expect(c[2].savePct).toBeCloseTo(37 / 40);
+    expect(c[0].savePct).toBeCloseTo(0.8);
+    expect(c[1].savePct).toBeNull();
+    expect(buildGoalieSleepGroups(games)[2]).toMatchObject({ games: 2 });
   });
 });

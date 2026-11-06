@@ -1,4 +1,4 @@
-import { computeInsights, gameInsightsFor, GOALIE_MEANINGFUL_DIFF, InsightGame, MIN_CHECKINS, MIN_GROUP } from '../insights';
+import { computeInsights, GOALIE_MEANINGFUL_DIFF, InsightGame, MIN_CHECKINS, MIN_GROUP } from '../insights';
 
 let n = 0;
 const game = (confidence: number, sleepHours: number, points: number): InsightGame => ({
