@@ -5,9 +5,15 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import Header from '@/app/components/Header';
+import { useSession } from 'next-auth/react';
+import { isGoalie } from '@/src/lib/positions';
+import GoalieStatsFields, { goalieFieldErrors } from '@/app/components/GoalieStatsFields';
 
 export default function EditGamePage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
+  const { data: session, status } = useSession();
+  const statsLoading = status === 'loading';
+  const goalie = !statsLoading && isGoalie(session?.user?.position);
   const [gameId, setGameId] = useState<string>('');
   const [isLoading, setIsLoading] = useState(true);
   const [isSaving, setIsSaving] = useState(false);
@@ -28,6 +34,8 @@ export default function EditGamePage({ params }: { params: Promise<{ id: string 
     shots: '',
     plusMinus: '',
     iceTime: '',
+    shotsAgainst: '',
+    goalsAgainst: '',
   });
 
   const fetchGame = useCallback(async () => {
@@ -51,6 +59,8 @@ export default function EditGamePage({ params }: { params: Promise<{ id: string 
         shots: String(g.shots),
         plusMinus: String(g.plusMinus),
         iceTime: String(g.iceTime),
+        shotsAgainst: String(g.shotsAgainst ?? ''),
+        goalsAgainst: String(g.goalsAgainst ?? ''),
       });
     } catch (err) {
       setError('Failed to load game');
@@ -92,7 +102,10 @@ export default function EditGamePage({ params }: { params: Promise<{ id: string 
       newErrors.result = 'Please select Win or Loss';
     }
 
-    // Stats validation (ensure non-negative except plusMinus)
+    if (goalie) {
+      Object.assign(newErrors, goalieFieldErrors(formData.shotsAgainst, formData.goalsAgainst));
+      if (Number(formData.iceTime) < 0) newErrors.iceTime = 'Ice time cannot be negative';
+    } else {
     if (Number(formData.goals) < 0) {
       newErrors.goals = 'Goals cannot be negative';
     }
@@ -104,6 +117,7 @@ export default function EditGamePage({ params }: { params: Promise<{ id: string 
     }
     if (Number(formData.iceTime) < 0) {
       newErrors.iceTime = 'Ice time cannot be negative';
+    }
     }
 
     setErrors(newErrors);
@@ -119,7 +133,15 @@ export default function EditGamePage({ params }: { params: Promise<{ id: string 
       const response = await fetch(`/api/games/${gameId}`, {
         method: 'PUT',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
+        body: JSON.stringify(goalie ? {
+          date: formData.date,
+          opponent: formData.opponent,
+          homeAway: formData.homeAway,
+          result: formData.result,
+          iceTime: Number(formData.iceTime) || 0,
+          shotsAgainst: Number(formData.shotsAgainst),
+          goalsAgainst: Number(formData.goalsAgainst),
+        } : {
           ...formData,
           goals: Number(formData.goals) || 0,
           assists: Number(formData.assists) || 0,
@@ -334,7 +356,11 @@ export default function EditGamePage({ params }: { params: Promise<{ id: string 
               </div>
             </div>
 
-            {/* Section 2 - Your Stats */}
+            {statsLoading ? (
+              <div className="h-48 bg-gray-100 rounded-lg skeleton-shimmer" />
+            ) : goalie ? (
+              <GoalieStatsFields shotsAgainst={formData.shotsAgainst} goalsAgainst={formData.goalsAgainst} iceTime={formData.iceTime} onChange={handleChange} errors={errors} disabled={isSaving} />
+            ) : (
             <div>
               <h2 className="text-xl font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
                 Your Stats
@@ -470,6 +496,7 @@ export default function EditGamePage({ params }: { params: Promise<{ id: string 
                 </div>
               </div>
             </div>
+            )}
 
             {/* Submit Error */}
             {errors.submit && (

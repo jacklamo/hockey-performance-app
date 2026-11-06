@@ -5,9 +5,15 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { ArrowLeft, FileText, Loader2 } from 'lucide-react';
 import Header from '@/app/components/Header';
+import { useSession } from 'next-auth/react';
+import { isGoalie } from '@/src/lib/positions';
+import GoalieStatsFields, { goalieFieldErrors } from '@/app/components/GoalieStatsFields';
 
 export default function AddGamePage() {
   const router = useRouter();
+  const { data: session, status } = useSession();
+  const statsLoading = status === 'loading';
+  const goalie = !statsLoading && isGoalie(session?.user?.position);
   const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [isImporting, setIsImporting] = useState(false);
@@ -29,6 +35,8 @@ export default function AddGamePage() {
     shots: '',
     plusMinus: '',
     iceTime: '',
+    shotsAgainst: '',
+    goalsAgainst: '',
   };
   const [formData, setFormData] = useState(emptyForm);
 
@@ -61,7 +69,10 @@ export default function AddGamePage() {
       newErrors.result = 'Please select Win or Loss';
     }
 
-    // Stats validation (ensure non-negative except plusMinus)
+    if (goalie) {
+      Object.assign(newErrors, goalieFieldErrors(formData.shotsAgainst, formData.goalsAgainst));
+      if (Number(formData.iceTime) < 0) newErrors.iceTime = 'Ice time cannot be negative';
+    } else {
     if (Number(formData.goals) < 0) {
       newErrors.goals = 'Goals cannot be negative';
     }
@@ -73,6 +84,7 @@ export default function AddGamePage() {
     }
     if (Number(formData.iceTime) < 0) {
       newErrors.iceTime = 'Ice time cannot be negative';
+    }
     }
 
     setErrors(newErrors);
@@ -99,7 +111,15 @@ export default function AddGamePage() {
         headers: {
           'Content-Type': 'application/json',
         },
-        body: JSON.stringify({
+        body: JSON.stringify(goalie ? {
+          date: formData.date,
+          opponent: formData.opponent,
+          homeAway: formData.homeAway,
+          result: formData.result,
+          iceTime: Number(formData.iceTime) || 0,
+          shotsAgainst: Number(formData.shotsAgainst),
+          goalsAgainst: Number(formData.goalsAgainst),
+        } : {
           ...formData,
           goals: Number(formData.goals) || 0,
           assists: Number(formData.assists) || 0,
@@ -213,6 +233,7 @@ export default function AddGamePage() {
         )}
 
         {/* PDF Import */}
+        {!goalie && (
         <div className="mb-6">
           <label className={`cursor-pointer inline-flex items-center gap-2 px-4 py-2 bg-gray-100 border border-gray-300 text-gray-700 rounded-lg font-medium hover:bg-gray-200 transition-colors ${isImporting || isLoading ? 'opacity-50 cursor-not-allowed' : ''}`}>
             {isImporting ? (
@@ -243,6 +264,7 @@ export default function AddGamePage() {
             </p>
           )}
         </div>
+        )}
 
         {/* Form Card */}
         <div className="bg-white rounded-lg shadow-md p-6 sm:p-8">
@@ -379,7 +401,11 @@ export default function AddGamePage() {
               </div>
             </div>
 
-            {/* Section 2 - Your Stats */}
+            {statsLoading ? (
+              <div className="h-48 bg-gray-100 rounded-lg skeleton-shimmer" />
+            ) : goalie ? (
+              <GoalieStatsFields shotsAgainst={formData.shotsAgainst} goalsAgainst={formData.goalsAgainst} iceTime={formData.iceTime} onChange={handleChange} errors={errors} disabled={isLoading} />
+            ) : (
             <div>
               <h2 className="text-xl font-semibold text-gray-900 mb-4 pb-2 border-b border-gray-200">
                 Your Stats
@@ -515,6 +541,7 @@ export default function AddGamePage() {
                 </div>
               </div>
             </div>
+            )}
 
             {/* Submit Error */}
             {errors.submit && (
