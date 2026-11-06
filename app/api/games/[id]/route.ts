@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/src/lib/prisma"
 import { requireAuth } from "@/src/lib/auth"
+import { isGoalie } from "@/src/lib/positions"
+import { validateGoalieStats } from "@/src/lib/goalie"
 
 // GET /api/games/[id] - Get a specific game
 export async function GET(
@@ -157,6 +159,17 @@ export async function PUT(
       }
     }
 
+    // Position comes from the DB, never the client. Goalie PUT is partial: merge with stored values.
+    const dbUser = await prisma.user.findUnique({ where: { id: user.id }, select: { position: true } })
+    let goalie: { shotsAgainst: number; goalsAgainst: number; saves: number } | undefined
+    if (isGoalie(dbUser?.position) && (body.shotsAgainst !== undefined || body.goalsAgainst !== undefined)) {
+      const sa = body.shotsAgainst !== undefined ? body.shotsAgainst : existingGame.shotsAgainst
+      const ga = body.goalsAgainst !== undefined ? body.goalsAgainst : existingGame.goalsAgainst
+      const v = validateGoalieStats(sa, ga)
+      if ('error' in v) return NextResponse.json({ error: v.error }, { status: 400 })
+      goalie = { shotsAgainst: sa, goalsAgainst: ga, saves: v.saves }
+    }
+
     // Update game
     const game = await prisma.game.update({
       where: { id },
@@ -169,7 +182,8 @@ export async function PUT(
         ...(assists !== undefined && { assists }),
         ...(shots !== undefined && { shots }),
         ...(plusMinus !== undefined && { plusMinus }),
-        ...(iceTime !== undefined && { iceTime })
+        ...(iceTime !== undefined && { iceTime }),
+        ...goalie
       },
       include: {
         mentalState: true

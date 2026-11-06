@@ -1,6 +1,8 @@
 import { NextRequest, NextResponse } from "next/server"
 import { prisma } from "@/src/lib/prisma"
 import { requireAuth } from "@/src/lib/auth"
+import { isGoalie } from "@/src/lib/positions"
+import { validateGoalieStats } from "@/src/lib/goalie"
 
 // GET /api/games - Get all games for the current user
 export async function GET() {
@@ -122,6 +124,15 @@ export async function POST(request: NextRequest) {
       )
     }
 
+    // Position comes from the DB, never the client.
+    const dbUser = await prisma.user.findUnique({ where: { id: user.id }, select: { position: true } })
+    let goalie: { shotsAgainst: number; goalsAgainst: number; saves: number } | undefined
+    if (isGoalie(dbUser?.position)) {
+      const v = validateGoalieStats(body.shotsAgainst, body.goalsAgainst)
+      if ('error' in v) return NextResponse.json({ error: v.error }, { status: 400 })
+      goalie = { shotsAgainst: body.shotsAgainst, goalsAgainst: body.goalsAgainst, saves: v.saves }
+    }
+
     // Create game
     const game = await prisma.game.create({
       data: {
@@ -134,7 +145,8 @@ export async function POST(request: NextRequest) {
         assists: assists ?? 0,
         shots: shots ?? 0,
         plusMinus: plusMinus ?? 0,
-        iceTime: iceTime ?? 0
+        iceTime: iceTime ?? 0,
+        ...goalie
       },
       include: {
         mentalState: true
