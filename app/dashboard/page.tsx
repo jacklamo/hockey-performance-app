@@ -3,6 +3,9 @@
 import { useState, useEffect, useCallback } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
+import { useSession } from 'next-auth/react';
+import { isGoalie } from '@/src/lib/positions';
+import { formatSavePct } from '@/src/lib/goalie';
 import {
   ResponsiveContainer,
   LineChart,
@@ -16,7 +19,7 @@ import {
   ReferenceLine,
   LabelList,
 } from 'recharts';
-import { buildLineChartData, buildConfidenceGroups, buildSleepGroups, GroupBar } from '@/src/lib/chart-utils';
+import { buildLineChartData, buildConfidenceGroups, buildSleepGroups, buildSavePctChartData, buildGoalsAgainstChartData, buildGoalieConfidenceGroups, buildGoalieSleepGroups, GroupBar } from '@/src/lib/chart-utils';
 import { computeInsights, MIN_CHECKINS, MIN_GROUP } from '@/src/lib/insights';
 import Header from '@/app/components/Header';
 import CheckInPrompt from '@/app/components/CheckInPrompt';
@@ -43,6 +46,9 @@ interface Game {
   shots: number;
   plusMinus: number;
   iceTime: number;
+  shotsAgainst?: number | null;
+  goalsAgainst?: number | null;
+  saves?: number | null;
   mentalState?: MentalState;
 }
 
@@ -63,10 +69,40 @@ function LineTip({ active, payload }: { active?: boolean; payload?: ReadonlyArra
 function BarTip({ active, payload }: { active?: boolean; payload?: ReadonlyArray<{ payload: GroupBar }> }) {
   if (!active || !payload?.length) return null;
   const g = payload[0].payload;
+  if (g.savePct !== undefined) {
+    return (
+      <div className={tooltipBox}>
+        <p className="font-serif text-base font-bold text-gray-900">{g.name}</p>
+        <p className="text-[15px] text-gray-600">{g.savePct === null ? '—' : g.savePct.toFixed(3).replace(/^0/, '')} SV% over {g.games} {g.games === 1 ? 'game' : 'games'}</p>
+      </div>
+    );
+  }
   return (
     <div className={tooltipBox}>
       <p className="font-serif text-base font-bold text-gray-900">{g.name}</p>
       <p className="text-[15px] text-gray-600">{g.avgPoints.toFixed(1)} points a game over {g.games} {g.games === 1 ? 'game' : 'games'}</p>
+    </div>
+  );
+}
+
+function SaveTip({ active, payload }: { active?: boolean; payload?: ReadonlyArray<{ payload: { game: number; date: string; savePct: number } }> }) {
+  if (!active || !payload?.length) return null;
+  const p = payload[0].payload;
+  return (
+    <div className={tooltipBox}>
+      <p className="font-serif text-base font-bold text-gray-900">Game #{p.game}, {p.date}</p>
+      <p className="text-[15px] text-gray-600">{p.savePct.toFixed(3).replace(/^0/, '')} SV%</p>
+    </div>
+  );
+}
+
+function GaTip({ active, payload }: { active?: boolean; payload?: ReadonlyArray<{ payload: { game: number; date: string; goalsAgainst: number } }> }) {
+  if (!active || !payload?.length) return null;
+  const p = payload[0].payload;
+  return (
+    <div className={tooltipBox}>
+      <p className="font-serif text-base font-bold text-gray-900">Game #{p.game}, {p.date}</p>
+      <p className="text-[15px] text-gray-600">{p.goalsAgainst} {p.goalsAgainst === 1 ? 'goal' : 'goals'} against</p>
     </div>
   );
 }
@@ -85,10 +121,13 @@ const CHART_VIEW_KEY = 'dashboard-chart-view';
 
 export default function DashboardPage() {
   const router = useRouter();
+  const { data: session, status } = useSession();
+  const goalie = status !== 'loading' && isGoalie(session?.user?.position);
   const [games, setGames] = useState<Game[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
-  const [chartView, setChartView] = useState<'charts' | 'rink'>('charts');
+  const [storedView, setChartView] = useState<'charts' | 'rink'>('charts');
+  const chartView = goalie ? 'charts' : storedView; // goalies have no rink view
   useEffect(() => {
     try {
       if (localStorage.getItem(CHART_VIEW_KEY) === 'rink') setChartView('rink');
@@ -146,12 +185,16 @@ export default function DashboardPage() {
     ? gamesWithMentalState.reduce((sum, game) => sum + (game.mentalState?.sleepHours || 0), 0) / gamesWithMentalState.length
     : 0;
 
-  const { needed: checkInsNeeded, checkInCount, insights } = computeInsights(games);
+  const { needed: checkInsNeeded, checkInCount, insights } = computeInsights(games, { goalie });
 
   const recentGames = games.slice(0, 5);
   const lineChartData = buildLineChartData(games);
-  const confGroups = buildConfidenceGroups(games);
-  const sleepGroups = buildSleepGroups(games);
+  const confGroups = goalie ? buildGoalieConfidenceGroups(games) : buildConfidenceGroups(games);
+  const sleepGroups = goalie ? buildGoalieSleepGroups(games) : buildSleepGroups(games);
+  const gaPerGame = totalGames ? games.reduce((a, g) => a + (g.goalsAgainst ?? 0), 0) / totalGames : 0;
+  const saPerGame = totalGames ? games.reduce((a, g) => a + (g.shotsAgainst ?? 0), 0) / totalGames : 0;
+  const saveChartData = buildSavePctChartData(games);
+  const gaChartData = buildGoalsAgainstChartData(games);
   const rinkPoints = gamesWithMentalState.map((g) => ({
     confidence: g.mentalState!.confidence,
     points: g.goals + g.assists,
@@ -159,7 +202,7 @@ export default function DashboardPage() {
     detail: `Confidence ${g.mentalState!.confidence}, ${g.goals + g.assists} ${g.goals + g.assists === 1 ? 'point' : 'points'}`,
   }));
 
-  if (isLoading) {
+  if (isLoading || status === 'loading') {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header title="Performance Dashboard" />
@@ -243,9 +286,17 @@ export default function DashboardPage() {
             <div className="mb-12 grid grid-cols-2 lg:grid-cols-4 overflow-hidden rounded-xl bg-(--dasher) text-(--dasher-fg)">
               {[
                 [String(totalGames), 'Games played'],
-                [avgPoints.toFixed(1), 'Points a game'],
-                [gamesWithMentalState.length > 0 ? avgConfidence.toFixed(1) : '-', 'Average confidence'],
-                [gamesWithMentalState.length > 0 ? `${avgSleep.toFixed(1)} h` : '-', 'Average sleep'],
+                ...(goalie
+                  ? [
+                      [formatSavePct(games.reduce((a, g) => a + (g.saves ?? 0), 0), games.reduce((a, g) => a + (g.shotsAgainst ?? 0), 0)), 'Save %'],
+                      [gaPerGame.toFixed(1), 'Goals against a game'],
+                      [saPerGame.toFixed(1), 'Shots against a game'],
+                    ]
+                  : [
+                      [avgPoints.toFixed(1), 'Points a game'],
+                      [gamesWithMentalState.length > 0 ? avgConfidence.toFixed(1) : '-', 'Average confidence'],
+                      [gamesWithMentalState.length > 0 ? `${avgSleep.toFixed(1)} h` : '-', 'Average sleep'],
+                    ]),
               ].map(([value, label], i) => (
                 <div
                   key={label}
@@ -269,7 +320,7 @@ export default function DashboardPage() {
                     <div className="h-2 rounded-full bg-blue-600" style={{ width: `${(checkInCount / MIN_CHECKINS) * 100}%` }} />
                   </div>
                   <p className="text-blue-800">
-                    Once you&apos;ve logged a few games with check-ins, we&apos;ll show you how sleep and confidence line up with your scoring.
+                    Once you&apos;ve logged a few games with check-ins, we&apos;ll show you how sleep and confidence line up with your {goalie ? 'save %' : 'scoring'}.
                   </p>
                 </div>
               ) : insights.length === 0 ? (
@@ -302,7 +353,7 @@ export default function DashboardPage() {
             <div className="mb-12">
               <div className="mb-5 flex flex-wrap items-baseline justify-between gap-x-6 gap-y-3">
                 <h2 className="text-3xl font-bold text-gray-900">The numbers</h2>
-                <div role="group" aria-label="Chart style" className="inline-flex overflow-hidden rounded-full border-[1.5px] border-gray-900">
+                {!goalie && <div role="group" aria-label="Chart style" className="inline-flex overflow-hidden rounded-full border-[1.5px] border-gray-900">
                   {(['charts', 'rink'] as const).map((v, i) => (
                     <button
                       key={v}
@@ -315,7 +366,7 @@ export default function DashboardPage() {
                       {v === 'charts' ? 'Charts' : 'Rink'}
                     </button>
                   ))}
-                </div>
+                </div>}
               </div>
 
               {chartView === 'rink' ? (
@@ -328,11 +379,24 @@ export default function DashboardPage() {
               ) : (
                 <div className="grid grid-cols-1 gap-8 lg:grid-cols-2">
                   <figure className="m-0 rounded-xl border border-gray-200 bg-white p-5 lg:col-span-2">
-                    <h3 className="text-2xl font-bold text-gray-900">Points in each game</h3>
+                    <h3 className="text-2xl font-bold text-gray-900">{goalie ? 'Save % in each game' : 'Points in each game'}</h3>
                     <p className="mb-4 mt-1 max-w-[64ch] text-[15px] text-gray-500">
-                      Goals plus assists for your last {lineChartData.length} games. The dashed line is your season average.
+                      {goalie
+                        ? `Save % for your last ${saveChartData.length} games. Games with no shots against are skipped.`
+                        : `Goals plus assists for your last ${lineChartData.length} games. The dashed line is your season average.`}
                     </p>
                     <div className="h-72">
+                      {goalie ? (
+                        <ResponsiveContainer width="100%" height="100%">
+                          <LineChart data={saveChartData} margin={{ top: 10, right: 10, left: -10, bottom: 0 }}>
+                            <CartesianGrid stroke="var(--color-gray-200)" vertical={false} />
+                            <XAxis dataKey="game" tickFormatter={(g) => `#${g}`} tick={{ fontSize: 13, fill: 'var(--color-gray-500)' }} stroke="var(--color-gray-900)" interval="preserveStartEnd" />
+                            <YAxis domain={[0.8, 1]} tickFormatter={(v: number) => v.toFixed(2).replace(/^0/, '')} tick={{ fontSize: 13, fill: 'var(--color-gray-500)' }} stroke="var(--color-gray-900)" />
+                            <Tooltip content={<SaveTip />} cursor={{ stroke: 'var(--color-gray-300)' }} />
+                            <Line type="monotone" dataKey="savePct" stroke="var(--color-blue-600)" strokeWidth={2.5} dot={{ r: 4.5, fill: 'var(--color-blue-600)' }} activeDot={{ r: 6 }} />
+                          </LineChart>
+                        </ResponsiveContainer>
+                      ) : (
                       <ResponsiveContainer width="100%" height="100%">
                         <LineChart data={lineChartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
                           <CartesianGrid stroke="var(--color-gray-200)" vertical={false} />
@@ -348,27 +412,46 @@ export default function DashboardPage() {
                           <Line type="monotone" dataKey="points" stroke="var(--color-blue-600)" strokeWidth={2.5} dot={{ r: 4.5, fill: 'var(--color-blue-600)' }} activeDot={{ r: 6 }} />
                         </LineChart>
                       </ResponsiveContainer>
+                      )}
                     </div>
                   </figure>
 
+                  {goalie && (
+                    <figure className="m-0 rounded-xl border border-gray-200 bg-white p-5 lg:col-span-2">
+                      <h3 className="text-2xl font-bold text-gray-900">Goals against in each game</h3>
+                      <p className="mb-4 mt-1 max-w-[64ch] text-[15px] text-gray-500">Goals against for your last {gaChartData.length} games.</p>
+                      <div className="h-72">
+                        <ResponsiveContainer width="100%" height="100%">
+                          <BarChart data={gaChartData} margin={{ top: 10, right: 10, left: -20, bottom: 0 }}>
+                            <CartesianGrid stroke="var(--color-gray-200)" vertical={false} />
+                            <XAxis dataKey="game" tickFormatter={(g) => `#${g}`} tick={{ fontSize: 13, fill: 'var(--color-gray-500)' }} stroke="var(--color-gray-900)" interval="preserveStartEnd" />
+                            <YAxis allowDecimals={false} tick={{ fontSize: 13, fill: 'var(--color-gray-500)' }} stroke="var(--color-gray-900)" />
+                            <Tooltip content={<GaTip />} cursor={{ fill: 'var(--color-gray-100)', opacity: 0.6 }} />
+                            <Bar dataKey="goalsAgainst" fill="var(--color-blue-600)" radius={[8, 8, 0, 0]} maxBarSize={48} />
+                          </BarChart>
+                        </ResponsiveContainer>
+                      </div>
+                    </figure>
+                  )}
+
                   {[
-                    { title: 'Points by how confident you felt', groups: confGroups },
-                    { title: 'Points by how much you slept', groups: sleepGroups },
+                    { title: goalie ? 'Save % by how confident you felt' : 'Points by how confident you felt', groups: confGroups },
+                    { title: goalie ? 'Save % by how much you slept' : 'Points by how much you slept', groups: sleepGroups },
                   ].map(({ title, groups }) => (
                     <figure key={title} className="m-0 rounded-xl border border-gray-200 bg-white p-5">
                       <h3 className="text-2xl font-bold text-gray-900">{title}</h3>
                       <p className="mb-4 mt-1 max-w-[64ch] text-[15px] text-gray-500">
-                        Average points per game. The number under each label is how many games it covers.
+                        {goalie ? 'Save % across those games.' : 'Average points per game.'} The number under each label is how many games it covers.
                       </p>
                       <div className="h-72">
                         <ResponsiveContainer width="100%" height="100%">
                           <BarChart data={groups} margin={{ top: 22, right: 6, left: -20, bottom: 0 }}>
                             <CartesianGrid stroke="var(--color-gray-200)" vertical={false} />
                             <XAxis dataKey="name" tick={<GroupTick groups={groups} />} height={50} stroke="var(--color-gray-900)" interval={0} />
-                            <YAxis allowDecimals={false} domain={[0, (max: number) => Math.max(4, Math.ceil(max))]} tick={{ fontSize: 13, fill: 'var(--color-gray-500)' }} stroke="var(--color-gray-900)" />
+                            <YAxis allowDecimals={!goalie} domain={goalie ? [0.8, 1] : [0, (max: number) => Math.max(4, Math.ceil(max))]} tickFormatter={goalie ? (v: number) => v.toFixed(2).replace(/^0/, '') : undefined} tick={{ fontSize: 13, fill: 'var(--color-gray-500)' }} stroke="var(--color-gray-900)" />
                             <Tooltip content={<BarTip />} cursor={{ fill: 'var(--color-gray-100)', opacity: 0.6 }} />
-                            <Bar dataKey="avgPoints" fill="var(--color-blue-600)" radius={[8, 8, 0, 0]} maxBarSize={88}>
-                              <LabelList dataKey="avgPoints" position="top" formatter={(v: unknown) => Number(v).toFixed(1)} style={{ fill: 'var(--color-gray-900)', fontWeight: 700, fontSize: 16 }} />
+                            <Bar dataKey={goalie ? 'savePct' : 'avgPoints'} fill="var(--color-blue-600)" radius={[8, 8, 0, 0]} maxBarSize={88}>
+                              <LabelList dataKey={goalie ? 'savePct' : 'avgPoints'} position="top" formatter={(v: unknown) => (v == null ? '' : goalie ? Number(v).toFixed(3).replace(/^0/, '') : Number(v).toFixed(1))} style={{ fill: 'var(--color-gray-900)', fontWeight: 700, fontSize: 16 }} />
                             </Bar>
                           </BarChart>
                         </ResponsiveContainer>
@@ -405,12 +488,15 @@ export default function DashboardPage() {
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Result
                       </th>
+                      {goalie ? ['SA', 'GA', 'SV%'].map((h) => (
+                        <th key={h} className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">{h}</th>
+                      )) : (<>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Points
                       </th>
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         +/-
-                      </th>
+                      </th></>)}
                       <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">
                         Check-In
                       </th>
@@ -444,6 +530,13 @@ export default function DashboardPage() {
                             {game.result === 'win' ? 'Win' : 'Loss'}
                           </span>
                         </td>
+                        {goalie ? (
+                          <>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{game.shotsAgainst ?? '—'}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{game.goalsAgainst ?? '—'}</td>
+                            <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">{formatSavePct(game.saves, game.shotsAgainst)}</td>
+                          </>
+                        ) : (<>
                         <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
                           {game.goals + game.assists}
                         </td>
@@ -460,7 +553,7 @@ export default function DashboardPage() {
                             {game.plusMinus > 0 ? '+' : ''}
                             {game.plusMinus}
                           </span>
-                        </td>
+                        </td></>)}
                         <td className="px-6 py-4 whitespace-nowrap">
                           {!game.mentalState && (
                             <Link
@@ -507,6 +600,16 @@ export default function DashboardPage() {
                         {game.result === 'win' ? 'Win' : 'Loss'}
                       </span>
                     </div>
+                    {goalie ? (
+                      <div className="flex gap-4 text-sm">
+                        {[['SA', game.shotsAgainst ?? '—'], ['GA', game.goalsAgainst ?? '—'], ['SV%', formatSavePct(game.saves, game.shotsAgainst)]].map(([k, v]) => (
+                          <div key={k}>
+                            <span className="text-gray-500">{k}: </span>
+                            <span className="font-medium text-gray-900">{v}</span>
+                          </div>
+                        ))}
+                      </div>
+                    ) : (
                     <div className="flex gap-4 text-sm">
                       <div>
                         <span className="text-gray-500">Points: </span>
@@ -528,6 +631,7 @@ export default function DashboardPage() {
                         </span>
                       </div>
                     </div>
+                    )}
                     {!game.mentalState && (
                       <div
                         className="mt-2 pt-2 border-t border-gray-100"
