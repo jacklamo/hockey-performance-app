@@ -6,6 +6,9 @@ import { useRouter } from 'next/navigation';
 import { ArrowLeft, Loader2 } from 'lucide-react';
 import Header from '@/app/components/Header';
 import GameInsights from '@/app/components/GameInsights';
+import { useSession } from 'next-auth/react';
+import { isGoalie } from '@/src/lib/positions';
+import { formatSavePct } from '@/src/lib/goalie';
 
 interface MentalState {
   confidence: number;
@@ -28,10 +31,15 @@ interface Game {
   plusMinus: number;
   iceTime: number;
   mentalState?: MentalState;
+  shotsAgainst?: number | null;
+  goalsAgainst?: number | null;
+  saves?: number | null;
 }
 
 export default function GameDetailPage({ params }: { params: Promise<{ id: string }> }) {
   const router = useRouter();
+  const { data: session, status } = useSession();
+  const goalie = status !== 'loading' && isGoalie(session?.user?.position);
   const [game, setGame] = useState<Game | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [isDeleting, setIsDeleting] = useState(false);
@@ -103,7 +111,7 @@ export default function GameDetailPage({ params }: { params: Promise<{ id: strin
     }
   };
 
-  if (isLoading) {
+  if (isLoading || status === 'loading') {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header title="Game Detail" width="medium" />
@@ -188,6 +196,27 @@ export default function GameDetailPage({ params }: { params: Promise<{ id: strin
             Your Performance
           </h2>
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-6">
+            {goalie ? (
+              <>
+            <div>
+              <p className="text-sm text-gray-500 mb-1">Shots Against</p>
+              <p className="text-3xl font-bold text-gray-900">{game.shotsAgainst ?? 0}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500 mb-1">Saves</p>
+              <p className="text-3xl font-bold text-gray-900">{game.saves ?? 0}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500 mb-1">Goals Against</p>
+              <p className="text-3xl font-bold text-gray-900">{game.goalsAgainst ?? 0}</p>
+            </div>
+            <div>
+              <p className="text-sm text-gray-500 mb-1">SV%</p>
+              <p className="text-3xl font-bold text-gray-900">{formatSavePct(game.saves, game.shotsAgainst)}</p>
+            </div>
+              </>
+            ) : (
+              <>
             {/* Goals */}
             <div>
               <p className="text-sm text-gray-500 mb-1">Goals</p>
@@ -237,6 +266,8 @@ export default function GameDetailPage({ params }: { params: Promise<{ id: strin
                 <span className="text-lg text-gray-500 ml-1">min</span>
               </p>
             </div>
+              </>
+            )}
           </div>
         </div>
 

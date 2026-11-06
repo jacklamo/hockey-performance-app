@@ -5,6 +5,9 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { AlertCircle, ClipboardList } from 'lucide-react';
 import Header from '@/app/components/Header';
+import { useSession } from 'next-auth/react';
+import { isGoalie } from '@/src/lib/positions';
+import { formatSavePct } from '@/src/lib/goalie';
 
 interface Game {
   id: string;
@@ -17,10 +20,15 @@ interface Game {
   shots: number;
   plusMinus: number;
   iceTime: number;
+  shotsAgainst?: number | null;
+  goalsAgainst?: number | null;
+  saves?: number | null;
 }
 
 export default function GamesPage() {
   const router = useRouter();
+  const { data: session, status } = useSession();
+  const goalie = status !== 'loading' && isGoalie(session?.user?.position);
   const [games, setGames] = useState<Game[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState('');
@@ -54,7 +62,7 @@ export default function GamesPage() {
   };
 
   // Inline skeleton for the isLoading branch (matches loading.tsx — prevents flash)
-  if (isLoading) {
+  if (isLoading || status === 'loading') {
     return (
       <div className="min-h-screen bg-gray-50">
         <Header title="My Games" />
@@ -128,9 +136,15 @@ export default function GamesPage() {
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Opponent</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Result</th>
+                    {goalie ? (
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SA / GA / SV%</th>
+                    ) : (
+                    <>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">G</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">A</th>
                     <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">+/-</th>
+                    </>
+                    )}
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
@@ -147,6 +161,10 @@ export default function GamesPage() {
                           {game.result === 'win' ? 'Win' : 'Loss'}
                         </span>
                       </td>
+                      {goalie ? (
+                        <td className="px-6 py-4 text-gray-900">{game.shotsAgainst ?? 0} / {game.goalsAgainst ?? 0} / {formatSavePct(game.saves, game.shotsAgainst)}</td>
+                      ) : (
+                      <>
                       <td className="px-6 py-4 text-gray-900">{game.goals}</td>
                       <td className="px-6 py-4 text-gray-900">{game.assists}</td>
                       <td className="px-6 py-4 text-gray-900">
@@ -154,6 +172,8 @@ export default function GamesPage() {
                           {game.plusMinus > 0 ? '+' : ''}{game.plusMinus}
                         </span>
                       </td>
+                      </>
+                      )}
                     </tr>
                   ))}
                 </tbody>
