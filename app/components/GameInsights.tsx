@@ -2,10 +2,14 @@
 
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
+import { useSession } from 'next-auth/react';
+import { isGoalie } from '@/src/lib/positions';
 import { computeInsights, MIN_CHECKINS, gameInsightsFor, InsightGame } from '@/src/lib/insights';
 
 // Loads all games itself so the game page renders without waiting on it.
 export default function GameInsights({ gameId, hasCheckIn }: { gameId: string; hasCheckIn: boolean }) {
+  const { data: session, status } = useSession();
+  const goalie = isGoalie(session?.user?.position);
   const [games, setGames] = useState<InsightGame[] | null>(null);
 
   useEffect(() => {
@@ -27,10 +31,10 @@ export default function GameInsights({ gameId, hasCheckIn }: { gameId: string; h
     );
   }
 
-  if (!games) return null;
+  if (!games || status === 'loading') return null;
 
-  const items = gameInsightsFor(gameId, games);
-  const { needed, checkInCount } = computeInsights(games);
+  const items = gameInsightsFor(gameId, games, { goalie });
+  const { needed, checkInCount } = computeInsights(games, { goalie });
   if (items.length === 0 && needed === 0) return null;
 
   return (
@@ -38,7 +42,7 @@ export default function GameInsights({ gameId, hasCheckIn }: { gameId: string; h
       <h2 className="text-xl font-bold text-gray-900 mb-4">How this game fits your patterns</h2>
       {needed > 0 ? (
         <p className="text-gray-600">
-          {checkInCount} of {MIN_CHECKINS} check-ins, then we&apos;ll show how this game compares with your usual patterns.
+          {checkInCount} of {MIN_CHECKINS} {goalie ? 'qualifying games (min 15 shots)' : 'check-ins'}, then we&apos;ll show how this game compares with your usual patterns.
         </p>
       ) : (
         <>
