@@ -1,4 +1,4 @@
-import { computeInsights, InsightGame, MIN_CHECKINS, MIN_GROUP } from '../insights';
+import { computeInsights, gameInsightsFor, GOALIE_MEANINGFUL_DIFF, InsightGame, MIN_CHECKINS, MIN_GROUP } from '../insights';
 
 let n = 0;
 const game = (confidence: number, sleepHours: number, points: number): InsightGame => ({
@@ -110,5 +110,58 @@ describe('gameInsightsFor', () => {
   test('is empty until insights unlock', () => {
     const target = game(9, 8, 3);
     expect(gameInsightsFor(target.id, [target])).toEqual([]);
+  });
+});
+
+describe('goalie mode', () => {
+  const G = { goalie: true };
+  const gg = (confidence: number, sleepHours: number, shotsAgainst: number, saves: number): InsightGame => ({
+    ...game(confidence, sleepHours, 0),
+    shotsAgainst,
+    saves,
+  });
+  const bad = /goal|assist|point|scor|shoot/i;
+
+  test('only games with >= 15 shots count toward unlocking', () => {
+    const games = [...Array(7)].map(() => gg(9, 8, 20, 18)).concat([...Array(3)].map(() => gg(9, 8, 10, 9)));
+    expect(computeInsights(games, G)).toMatchObject({ checkInCount: 7, needed: 1, insights: [] });
+  });
+
+  test('group value is sum(saves)/sum(SA), copy avoids skater words, basedOn counts', () => {
+    const games = [
+      ...[...Array(4)].map(() => gg(9, 8, 20, 19)),
+      gg(9, 8, 40, 30),
+      ...[...Array(4)].map(() => gg(3, 6, 20, 16)),
+      gg(5, 7, 5, 5), // too few shots, left out
+    ];
+    const r = computeInsights(games, G);
+    const c = r.insights.find((i) => i.id === 'confidence')!;
+    expect(c.high.savePct).toBeCloseTo(106 / 120);
+    expect(c.high.avgPoints).toBe(0);
+    expect(c.trust).toBe('early');
+    expect(c.basedOn).toContain('9 of 10 games counted (min 15 shots)');
+    expect(c.basedOn).toContain('1 check-in game had fewer than 15 shots');
+    for (const i of r.insights) {
+      expect([i.headline, i.trustNote, ...i.couldMean, ...i.notIncluded].join(' ')).not.toMatch(bad);
+    }
+  });
+
+  test('flat under GOALIE_MEANINGFUL_DIFF, then early/noticeable by group size', () => {
+    expect(GOALIE_MEANINGFUL_DIFF).toBe(0.015);
+    const flat = [...Array(4)].map(() => gg(9, 8, 100, 90)).concat([...Array(4)].map(() => gg(3, 6, 100, 89)));
+    expect(computeInsights(flat, G).insights[0].trust).toBe('flat');
+    const early = [...Array(4)].map(() => gg(9, 8, 100, 95)).concat([...Array(4)].map(() => gg(3, 6, 100, 85)));
+    expect(computeInsights(early, G).insights[0].trust).toBe('early');
+    const solid = [...Array(5)].map(() => gg(9, 8, 100, 95)).concat([...Array(5)].map(() => gg(3, 6, 100, 85)));
+    expect(computeInsights(solid, G).insights[0].trust).toBe('noticeable');
+  });
+
+  test('gameInsightsFor: low-shot game is not counted; in-group game states SV%', () => {
+    const low = { ...gg(9, 8, 10, 9), id: 'low' };
+    const games = [low, ...[...Array(4)].map(() => gg(9, 8, 20, 18)), ...[...Array(4)].map(() => gg(3, 6, 20, 16))];
+    expect(gameInsightsFor('low', games, G)[0].text).toContain("under the 15-shot minimum, so it isn't counted");
+    const t = gameInsightsFor(games[1].id, games, G)[0].text;
+    expect(t).toContain('.900 SV%');
+    expect(t).not.toMatch(bad);
   });
 });
