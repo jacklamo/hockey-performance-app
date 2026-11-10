@@ -17,8 +17,9 @@ export async function POST(request: NextRequest) {
     }
 
     // Validate email format
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
-    if (!emailRegex.test(email)) {
+    // Domain labels exclude "." so the dot split is unambiguous (no backtracking blowup); length capped per RFC 5321
+    const emailRegex = /^[^\s@]+@[^\s@.]+(\.[^\s@.]+)+$/
+    if (typeof email !== "string" || email.length > 254 || !emailRegex.test(email)) {
       return NextResponse.json(
         { error: "Invalid email format" },
         { status: 400 }
