@@ -35,7 +35,7 @@ Full details: [milestones/v2.0-ROADMAP.md](milestones/v2.0-ROADMAP.md)
 
 - [ ] **Phase 8: Schema & Seeds** - Additive migration for goalie, timing and age fields; position validation; demo seeds for skater and goalie
 - [ ] **Phase 9: Honest Insights** - Progress state, shared thresholds, sample size shown, tentative wording, check-in-only games
-- [ ] **Phase 10: Goalie Support** - Goalie game logging, list/detail, dashboard, SV% insights; optional Instat goalie PDF last
+- [x] **Phase 10: Goalie Support** - Goalie game logging, list/detail, dashboard, SV% insights; optional Instat goalie PDF last (completed 2026-11-06)
 - [ ] **Phase 11: Check-in Timing** - Before/after game declared, server timestamp, legacy as unknown, nudges and insight caveats
 - [ ] **Phase 12: Privacy, Minors & Signup** - Optional Team Name, 13+ age gate, Privacy/Terms, account deletion, disclaimer, honest copy
 - [ ] **Phase 13: Branding, Previews & Launch** - GameFeel branding everywhere, link previews, gamefeel.app URLs, end-to-end demo run, mobile slider check
@@ -140,7 +140,7 @@ Full details: [milestones/v2.0-ROADMAP.md](milestones/v2.0-ROADMAP.md)
 | 7. NHL Data Pipeline | v2.0 | 3/3 | Complete | 2026-07-18 |
 | 8. Schema & Seeds | v3.0 | 0/0 | Not started | - |
 | 9. Honest Insights | v3.0 | 0/0 | Not started | - |
-| 10. Goalie Support | 3/5 | In Progress|  | - |
+| 10. Goalie Support | 4/5 | Complete    | 2026-11-06 | - |
 | 11. Check-in Timing | v3.0 | 0/0 | Not started | - |
 | 12. Privacy, Minors & Signup | v3.0 | 0/0 | Not started | - |
 | 13. Branding, Previews & Launch | v3.0 | 0/0 | Not started | - |
